@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Práctica de Operaciones Matemáticas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; padding: 0; }
+    </style>
+</head>
+<body>
+    <div id="app" class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex items-center justify-center">
+        <div class="max-w-2xl w-full">
+            <div class="bg-white rounded-2xl shadow-2xl p-8">
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <div class="flex items-center justify-center gap-2 mb-2">
+                        <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <rect x="4" y="4" width="16" height="16" rx="2" stroke-width="2"/>
+                            <path d="M9 9h6M9 15h6M9 12h6" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <h1 class="text-3xl font-bold text-gray-800">Práctica Matemática</h1>
+                    </div>
+                    <p class="text-gray-600">Mejora tus habilidades de cálculo</p>
+                </div>
+
+                <!-- Score Display -->
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="bg-green-50 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-green-600" id="correct">0</div>
+                        <div class="text-sm text-gray-600">Correctas</div>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-blue-600" id="percentage">0%</div>
+                        <div class="text-sm text-gray-600">Precisión</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-4 text-center flex flex-col items-center justify-center">
+                        <div class="flex items-center gap-1">
+                            <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                            </svg>
+                            <span class="text-2xl font-bold text-purple-600" id="streak">0</span>
+                        </div>
+                        <div class="text-sm text-gray-600">Racha</div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Operación</label>
+                        <select id="operation" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="suma">Suma (+)</option>
+                            <option value="resta">Resta (−)</option>
+                            <option value="multiplicacion">Multiplicación (×)</option>
+                            <option value="division">División (÷)</option>
+                            <option value="aleatorio">🎲 Aleatorio (Todas)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Dificultad</label>
+                        <select id="difficulty" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="facil">Fácil (-10 a +10)</option>
+                            <option value="medio">Medio (-25 a +25)</option>
+                            <option value="dificil">Difícil (-100 a +100)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Problem Display -->
+                <div class="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-8 mb-6">
+                    <div class="text-center">
+                        <div class="text-5xl font-bold text-gray-800 mb-4 flex items-center justify-center gap-4">
+                            <span id="num1">0</span>
+                            <span class="text-indigo-600" id="symbol">+</span>
+                            <span id="num2">0</span>
+                            <span class="text-indigo-600">=</span>
+                            <span class="text-indigo-600">?</span>
+                        </div>
+                        
+                        <div class="flex gap-3 justify-center items-center mt-6">
+                            <input type="number" id="userAnswer" placeholder="Tu respuesta" 
+                                class="w-40 px-4 py-3 text-2xl text-center border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <button id="checkBtn" onclick="checkAnswer()" 
+                                class="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
+                                Comprobar
+                            </button>
+                        </div>
+
+                        <!-- Feedback -->
+                        <div id="feedback" class="mt-6 p-4 rounded-lg hidden"></div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-3">
+                    <button onclick="generateProblem()" 
+                        class="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Nuevo Problema
+                    </button>
+                    <button onclick="resetScore()" 
+                        class="px-4 py-3 bg-red-100 text-red-700 rounded-lg font-semibold hover:bg-red-200 transition-colors">
+                        Reiniciar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tips -->
+            <div class="mt-6 bg-white rounded-lg shadow p-4 text-sm text-gray-600">
+                <strong>Consejos:</strong> Presiona Enter para comprobar tu respuesta rápidamente. 
+                Mantén una racha para desbloquear tu mejor puntuación.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let score = { correct: 0, total: 0 };
+        let streak = 0;
+        let currentProblem = { num1: 0, num2: 0, answer: 0, operation: 'suma' };
+        let feedbackActive = false;
+
+        const ranges = {
+            facil: { min: -10, max: 10 },
+            medio: { min: -25, max: 25 },
+            dificil: { min: -100, max: 100 }
+        };
+
+        const symbols = {
+            suma: '+',
+            resta: '−',
+            multiplicacion: '×',
+            division: '÷'
+        };
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateProblem() {
+            const difficulty = document.getElementById('difficulty').value;
+            const operation = document.getElementById('operation').value;
+            const range = ranges[difficulty];
+            
+            // Si es aleatorio, elegir una operación al azar
+            const ops = ['suma', 'resta', 'multiplicacion', 'division'];
+            const currentOp = operation === 'aleatorio' 
+                ? ops[Math.floor(Math.random() * ops.length)]
+                : operation;
+
+            let num1, num2, answer;
+
+            switch(currentOp) {
+                case 'suma':
+                    num1 = getRandomInt(range.min, range.max);
+                    num2 = getRandomInt(range.min, range.max);
+                    answer = num1 + num2;
+                    break;
+                case 'resta':
+                    num1 = getRandomInt(range.min, range.max);
+                    num2 = getRandomInt(range.min, range.max);
+                    answer = num1 - num2;
+                    break;
+                case 'multiplicacion':
+                    const multRange = difficulty === 'facil' ? { min: -10, max: 10 } : 
+                                     difficulty === 'medio' ? { min: -25, max: 25 } : 
+                                     { min: -100, max: 100 };
+                    num1 = getRandomInt(multRange.min, multRange.max);
+                    num2 = getRandomInt(multRange.min, multRange.max);
+                    answer = num1 * num2;
+                    break;
+                case 'division':
+                    const divRange = difficulty === 'facil' ? { min: 1, max: 10 } : 
+                                    difficulty === 'medio' ? { min: 1, max: 25 } : 
+                                    { min: 1, max: 50 };
+                    num2 = getRandomInt(divRange.min, divRange.max);
+                    answer = getRandomInt(divRange.min, divRange.max);
+                    num1 = num2 * answer;
+                    break;
+            }
+
+            currentProblem = { num1, num2, answer, operation: currentOp };
+            
+            document.getElementById('num1').textContent = num1;
+            document.getElementById('num2').textContent = num2;
+            document.getElementById('symbol').textContent = symbols[currentOp];
+            document.getElementById('userAnswer').value = '';
+            document.getElementById('userAnswer').disabled = false;
+            document.getElementById('checkBtn').disabled = false;
+            document.getElementById('feedback').classList.add('hidden');
+            feedbackActive = false;
+        }
+
+        function checkAnswer() {
+            if (feedbackActive) return;
+            
+            const userAnswer = parseInt(document.getElementById('userAnswer').value);
+            if (isNaN(userAnswer)) return;
+
+            const correct = userAnswer === currentProblem.answer;
+            feedbackActive = true;
+
+            score.total++;
+            if (correct) {
+                score.correct++;
+                streak++;
+            } else {
+                streak = 0;
+            }
+
+            updateScore();
+
+            const feedback = document.getElementById('feedback');
+            feedback.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
+            
+            if (correct) {
+                feedback.classList.add('bg-green-100', 'text-green-800');
+                feedback.innerHTML = `
+                    <div class="flex items-center justify-center gap-2">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                        </svg>
+                        <span class="text-lg font-semibold">¡Correcto! La respuesta es ${currentProblem.answer}</span>
+                    </div>
+                `;
+            } else {
+                feedback.classList.add('bg-red-100', 'text-red-800');
+                feedback.innerHTML = `
+                    <div class="flex items-center justify-center gap-2">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+                        </svg>
+                        <span class="text-lg font-semibold">Incorrecto. La respuesta correcta es ${currentProblem.answer}</span>
+                    </div>
+                `;
+            }
+
+            document.getElementById('userAnswer').disabled = true;
+            document.getElementById('checkBtn').disabled = true;
+
+            setTimeout(() => {
+                generateProblem();
+            }, 1500);
+        }
+
+        function updateScore() {
+            document.getElementById('correct').textContent = score.correct;
+            document.getElementById('streak').textContent = streak;
+            const percentage = score.total > 0 ? Math.round((score.correct / score.total) * 100) : 0;
+            document.getElementById('percentage').textContent = percentage + '%';
+        }
+
+        function resetScore() {
+            score = { correct: 0, total: 0 };
+            streak = 0;
+            updateScore();
+            generateProblem();
+        }
+
+        // Event listeners
+        document.getElementById('operation').addEventListener('change', generateProblem);
+        document.getElementById('difficulty').addEventListener('change', generateProblem);
+        document.getElementById('userAnswer').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !feedbackActive) {
+                checkAnswer();
+            }
+        });
+
+        // Initialize
+        generateProblem();
+    </script>
+</body>
+</html>
