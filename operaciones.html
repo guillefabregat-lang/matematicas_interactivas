@@ -1,0 +1,254 @@
+import React, { useState, useEffect } from 'react';
+import { RefreshCw, Check, X, Trophy, Calculator } from 'lucide-react';
+
+const MathPractice = () => {
+  const [operation, setOperation] = useState('suma');
+  const [difficulty, setDifficulty] = useState('facil');
+  const [problem, setProblem] = useState({ num1: 0, num2: 0, answer: 0 });
+  const [userAnswer, setUserAnswer] = useState('');
+  const [feedback, setFeedback] = useState(null);
+  const [score, setScore] = useState({ correct: 0, total: 0 });
+  const [streak, setStreak] = useState(0);
+
+  const ranges = {
+    facil: { min: -10, max: 10 },
+    medio: { min: -25, max: 25 },
+    dificil: { min: -100, max: 100 }
+  };
+
+  const generateProblem = () => {
+    const range = ranges[difficulty];
+    let num1, num2, answer;
+
+    const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+    // Si es aleatorio, elegir una operación al azar
+    const currentOp = operation === 'aleatorio' 
+      ? ['suma', 'resta', 'multiplicacion', 'division'][Math.floor(Math.random() * 4)]
+      : operation;
+
+    switch(currentOp) {
+      case 'suma':
+        num1 = getRandomInt(range.min, range.max);
+        num2 = getRandomInt(range.min, range.max);
+        answer = num1 + num2;
+        break;
+      case 'resta':
+        num1 = getRandomInt(range.min, range.max);
+        num2 = getRandomInt(range.min, range.max);
+        answer = num1 - num2;
+        break;
+      case 'multiplicacion':
+        const multRange = difficulty === 'facil' ? { min: -10, max: 10 } : 
+                         difficulty === 'medio' ? { min: -25, max: 25 } : 
+                         { min: -100, max: 100 };
+        num1 = getRandomInt(multRange.min, multRange.max);
+        num2 = getRandomInt(multRange.min, multRange.max);
+        answer = num1 * num2;
+        break;
+      case 'division':
+        const divRange = difficulty === 'facil' ? { min: 1, max: 10 } : 
+                        difficulty === 'medio' ? { min: 1, max: 25 } : 
+                        { min: 1, max: 50 };
+        num2 = getRandomInt(divRange.min, divRange.max);
+        answer = getRandomInt(divRange.min, divRange.max);
+        num1 = num2 * answer;
+        break;
+      default:
+        num1 = 0;
+        num2 = 0;
+        answer = 0;
+    }
+
+    setProblem({ num1, num2, answer });
+    setUserAnswer('');
+    setFeedback(null);
+  };
+
+  useEffect(() => {
+    generateProblem();
+  }, [operation, difficulty]);
+
+  const checkAnswer = () => {
+    const correct = parseInt(userAnswer) === problem.answer;
+    setFeedback(correct ? 'correct' : 'incorrect');
+    setScore(prev => ({
+      correct: prev.correct + (correct ? 1 : 0),
+      total: prev.total + 1
+    }));
+    setStreak(correct ? streak + 1 : 0);
+
+    setTimeout(() => {
+      generateProblem();
+    }, 1500);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && userAnswer !== '') {
+      checkAnswer();
+    }
+  };
+
+  const getSymbol = () => {
+    switch(operation) {
+      case 'suma': return '+';
+      case 'resta': return '−';
+      case 'multiplicacion': return '×';
+      case 'division': return '÷';
+      default: return '+';
+    }
+  };
+
+  const resetScore = () => {
+    setScore({ correct: 0, total: 0 });
+    setStreak(0);
+    generateProblem();
+  };
+
+  const percentage = score.total > 0 ? Math.round((score.correct / score.total) * 100) : 0;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex items-center justify-center">
+      <div className="max-w-2xl w-full">
+        <div className="bg-white rounded-2xl shadow-2xl p-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Calculator className="w-8 h-8 text-indigo-600" />
+              <h1 className="text-3xl font-bold text-gray-800">Práctica Matemática</h1>
+            </div>
+            <p className="text-gray-600">Mejora tus habilidades de cálculo</p>
+          </div>
+
+          {/* Score Display */}
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="bg-green-50 rounded-lg p-4 text-center">
+              <div className="text-2xl font-bold text-green-600">{score.correct}</div>
+              <div className="text-sm text-gray-600">Correctas</div>
+            </div>
+            <div className="bg-blue-50 rounded-lg p-4 text-center">
+              <div className="text-2xl font-bold text-blue-600">{percentage}%</div>
+              <div className="text-sm text-gray-600">Precisión</div>
+            </div>
+            <div className="bg-purple-50 rounded-lg p-4 text-center flex flex-col items-center justify-center">
+              <div className="flex items-center gap-1">
+                <Trophy className="w-5 h-5 text-purple-600" />
+                <span className="text-2xl font-bold text-purple-600">{streak}</span>
+              </div>
+              <div className="text-sm text-gray-600">Racha</div>
+            </div>
+          </div>
+
+          {/* Controls */}
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Operación
+              </label>
+              <select
+                value={operation}
+                onChange={(e) => setOperation(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              >
+                <option value="suma">Suma (+)</option>
+                <option value="resta">Resta (−)</option>
+                <option value="multiplicacion">Multiplicación (×)</option>
+                <option value="division">División (÷)</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Dificultad
+              </label>
+              <select
+                value={difficulty}
+                onChange={(e) => setDifficulty(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              >
+                <option value="facil">Fácil (-10 a +10)</option>
+                <option value="medio">Medio (-25 a +25)</option>
+                <option value="dificil">Difícil (-100 a +100)</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Problem Display */}
+          <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-8 mb-6">
+            <div className="text-center">
+              <div className="text-5xl font-bold text-gray-800 mb-4 flex items-center justify-center gap-4">
+                <span>{problem.num1}</span>
+                <span className="text-indigo-600">{getSymbol()}</span>
+                <span>{problem.num2}</span>
+                <span className="text-indigo-600">=</span>
+                <span className="text-indigo-600">?</span>
+              </div>
+              
+              <div className="flex gap-3 justify-center items-center mt-6">
+                <input
+                  type="number"
+                  value={userAnswer}
+                  onChange={(e) => setUserAnswer(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Tu respuesta"
+                  className="w-40 px-4 py-3 text-2xl text-center border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  disabled={feedback !== null}
+                />
+                <button
+                  onClick={checkAnswer}
+                  disabled={userAnswer === '' || feedback !== null}
+                  className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                >
+                  Comprobar
+                </button>
+              </div>
+
+              {/* Feedback */}
+              {feedback && (
+                <div className={`mt-6 p-4 rounded-lg flex items-center justify-center gap-2 ${
+                  feedback === 'correct' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }`}>
+                  {feedback === 'correct' ? (
+                    <>
+                      <Check className="w-6 h-6" />
+                      <span className="text-lg font-semibold">¡Correcto! La respuesta es {problem.answer}</span>
+                    </>
+                  ) : (
+                    <>
+                      <X className="w-6 h-6" />
+                      <span className="text-lg font-semibold">Incorrecto. La respuesta correcta es {problem.answer}</span>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            <button
+              onClick={generateProblem}
+              className="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors flex items-center justify-center gap-2"
+            >
+              <RefreshCw className="w-5 h-5" />
+              Nuevo Problema
+            </button>
+            <button
+              onClick={resetScore}
+              className="px-4 py-3 bg-red-100 text-red-700 rounded-lg font-semibold hover:bg-red-200 transition-colors"
+            >
+              Reiniciar
+            </button>
+          </div>
+        </div>
+
+        {/* Tips */}
+        <div className="mt-6 bg-white rounded-lg shadow p-4 text-sm text-gray-600">
+          <strong>Consejos:</strong> Presiona Enter para comprobar tu respuesta rápidamente. 
+          Mantén una racha para desbloquear tu mejor puntuación.
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default MathPractice;
