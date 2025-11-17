@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Factorización</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; padding: 0; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .factor-item {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 p-4 flex items-center justify-center">
+        <div class="max-w-3xl w-full">
+            <div class="bg-white rounded-2xl shadow-2xl p-8">
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <div class="flex items-center justify-center gap-2 mb-2">
+                        <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        <h1 class="text-3xl font-bold text-gray-800">Factorización Prima</h1>
+                    </div>
+                    <p class="text-gray-600">Descompón el número en sus factores primos</p>
+                </div>
+
+                <!-- Score Display -->
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="bg-green-50 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-green-600" id="completed">0</div>
+                        <div class="text-sm text-gray-600">Completados</div>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-blue-600" id="attempts">0</div>
+                        <div class="text-sm text-gray-600">Intentos</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-purple-600" id="streak">0</div>
+                        <div class="text-sm text-gray-600">Racha</div>
+                    </div>
+                </div>
+
+                <!-- Difficulty Selection -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Dificultad</label>
+                    <select id="difficulty" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <option value="facil">Fácil (10-50)</option>
+                        <option value="medio">Medio (50-200)</option>
+                        <option value="dificil">Difícil (200-500)</option>
+                    </select>
+                </div>
+
+                <!-- Current Number Display -->
+                <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-8 mb-6">
+                    <div class="text-center">
+                        <div class="text-sm text-gray-600 mb-2">Número actual:</div>
+                        <div class="text-6xl font-bold text-purple-600 mb-6" id="currentNumber">24</div>
+                        
+                        <div class="flex gap-3 justify-center items-center">
+                            <input type="number" id="primeInput" placeholder="Factor primo" 
+                                class="w-32 px-4 py-3 text-2xl text-center border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <button id="checkBtn" onclick="checkFactor()" 
+                                class="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+                                Dividir
+                            </button>
+                        </div>
+
+                        <!-- Feedback -->
+                        <div id="feedback" class="mt-4 p-3 rounded-lg hidden text-sm font-semibold"></div>
+                    </div>
+                </div>
+
+                <!-- Factorization Progress -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-lg font-semibold text-gray-800">Factorización:</h3>
+                        <span class="text-sm text-gray-600">Número original: <span id="originalNumber" class="font-bold">24</span></span>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 min-h-[60px]">
+                        <div id="factorsList" class="flex flex-wrap gap-2 items-center">
+                            <span class="text-gray-400">Ningún factor aún...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Completion Message -->
+                <div id="completionMessage" class="hidden bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg p-6 mb-6">
+                    <div class="text-center">
+                        <svg class="w-16 h-16 text-green-600 mx-auto mb-3" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                        </svg>
+                        <h3 class="text-2xl font-bold text-green-700 mb-2">¡Factorización Completa! 🎉</h3>
+                        <p class="text-gray-700 mb-4"><span id="finalFactorization"></span></p>
+                        <button onclick="newNumber()" 
+                            class="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                            Siguiente Número
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-3">
+                    <button onclick="newNumber()" 
+                        class="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Nuevo Número
+                    </button>
+                    <button onclick="showHint()" 
+                        class="px-4 py-3 bg-yellow-100 text-yellow-700 rounded-lg font-semibold hover:bg-yellow-200 transition-colors">
+                        💡 Pista
+                    </button>
+                    <button onclick="resetStats()" 
+                        class="px-4 py-3 bg-red-100 text-red-700 rounded-lg font-semibold hover:bg-red-200 transition-colors">
+                        Reiniciar
+                    </button>
+                </div>
+
+                <!-- Hint Display -->
+                <div id="hintBox" class="hidden mt-4 bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4 text-sm text-gray-700">
+                    <strong>💡 Pista:</strong> <span id="hintText"></span>
+                </div>
+            </div>
+
+            <!-- Tips -->
+            <div class="mt-6 bg-white rounded-lg shadow p-4 text-sm text-gray-600">
+                <strong>Instrucciones:</strong> Introduce el menor factor primo que divide al número actual. 
+                Si aciertas, el número se dividirá por ese factor. Continúa hasta llegar a 1.
+                <br><strong>Ejemplo:</strong> 24 = 2 × 2 × 2 × 3
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let stats = { completed: 0, attempts: 0, streak: 0 };
+        let currentNumber = 24;
+        let originalNumber = 24;
+        let factors = [];
+        let hintUsed = false;
+
+        const ranges = {
+            facil: { min: 10, max: 50 },
+            medio: { min: 50, max: 200 },
+            dificil: { min: 200, max: 500 }
+        };
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function isPrime(n) {
+            if (n < 2) return false;
+            if (n === 2) return true;
+            if (n % 2 === 0) return false;
+            for (let i = 3; i * i <= n; i += 2) {
+                if (n % i === 0) return false;
+            }
+            return true;
+        }
+
+        function getSmallestPrimeFactor(n) {
+            if (n <= 1) return null;
+            if (n === 2) return 2;
+            if (n % 2 === 0) return 2;
+            for (let i = 3; i * i <= n; i += 2) {
+                if (n % i === 0) return i;
+            }
+            return n;
+        }
+
+        function generateNumber() {
+            const difficulty = document.getElementById('difficulty').value;
+            const range = ranges[difficulty];
+            let num = getRandomInt(range.min, range.max);
+            
+            // Evitar números primos para principiantes
+            while (isPrime(num) && difficulty === 'facil') {
+                num = getRandomInt(range.min, range.max);
+            }
+            
+            return num;
+        }
+
+        function newNumber() {
+            currentNumber = generateNumber();
+            originalNumber = currentNumber;
+            factors = [];
+            hintUsed = false;
+            
+            document.getElementById('currentNumber').textContent = currentNumber;
+            document.getElementById('originalNumber').textContent = originalNumber;
+            document.getElementById('primeInput').value = '';
+            document.getElementById('primeInput').disabled = false;
+            document.getElementById('checkBtn').disabled = false;
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('completionMessage').classList.add('hidden');
+            document.getElementById('hintBox').classList.add('hidden');
+            
+            updateFactorsList();
+        }
+
+        function updateFactorsList() {
+            const list = document.getElementById('factorsList');
+            if (factors.length === 0) {
+                list.innerHTML = '<span class="text-gray-400">Ningún factor aún...</span>';
+            } else {
+                list.innerHTML = factors.map((f, i) => 
+                    `<span class="factor-item bg-purple-100 text-purple-700 px-3 py-1 rounded-lg font-semibold">${f}</span>
+                     ${i < factors.length - 1 ? '<span class="text-purple-400">×</span>' : ''}`
+                ).join('');
+                
+                if (currentNumber > 1) {
+                    list.innerHTML += '<span class="text-purple-400">× ...</span>';
+                }
+            }
+        }
+
+        function checkFactor() {
+            const input = parseInt(document.getElementById('primeInput').value);
+            const feedback = document.getElementById('feedback');
+            
+            if (isNaN(input) || input < 2) {
+                showFeedback('Por favor, introduce un número primo mayor que 1', 'error');
+                return;
+            }
+
+            stats.attempts++;
+            document.getElementById('attempts').textContent = stats.attempts;
+
+            // Verificar si es primo
+            if (!isPrime(input)) {
+                showFeedback(`${input} no es un número primo`, 'error');
+                stats.streak = 0;
+                document.getElementById('streak').textContent = stats.streak;
+                return;
+            }
+
+            // Verificar si divide al número actual
+            if (currentNumber % input !== 0) {
+                showFeedback(`${input} no divide a ${currentNumber}`, 'error');
+                stats.streak = 0;
+                document.getElementById('streak').textContent = stats.streak;
+                return;
+            }
+
+            // Verificar si es el menor factor primo
+            const smallestFactor = getSmallestPrimeFactor(currentNumber);
+            if (input !== smallestFactor) {
+                showFeedback(`Correcto, pero ${smallestFactor} es un factor primo más pequeño`, 'warning');
+                return;
+            }
+
+            // ¡Correcto!
+            factors.push(input);
+            currentNumber = currentNumber / input;
+            stats.streak++;
+            
+            document.getElementById('currentNumber').textContent = currentNumber;
+            document.getElementById('streak').textContent = stats.streak;
+            document.getElementById('primeInput').value = '';
+            document.getElementById('hintBox').classList.add('hidden');
+            
+            updateFactorsList();
+
+            if (currentNumber === 1) {
+                // ¡Completado!
+                stats.completed++;
+                document.getElementById('completed').textContent = stats.completed;
+                document.getElementById('primeInput').disabled = true;
+                document.getElementById('checkBtn').disabled = true;
+                
+                const factorization = factors.join(' × ');
+                document.getElementById('finalFactorization').textContent = 
+                    `${originalNumber} = ${factorization}`;
+                document.getElementById('completionMessage').classList.remove('hidden');
+                
+                showFeedback('¡Excelente! Factor correcto', 'success');
+            } else {
+                showFeedback('¡Correcto! Continúa con el siguiente factor', 'success');
+            }
+        }
+
+        function showFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.classList.remove('hidden', 'bg-green-100', 'text-green-700', 
+                                      'bg-red-100', 'text-red-700', 'bg-yellow-100', 'text-yellow-700');
+            
+            if (type === 'success') {
+                feedback.classList.add('bg-green-100', 'text-green-700');
+            } else if (type === 'error') {
+                feedback.classList.add('bg-red-100', 'text-red-700');
+            } else if (type === 'warning') {
+                feedback.classList.add('bg-yellow-100', 'text-yellow-700');
+            }
+
+            setTimeout(() => {
+                if (type !== 'success' || currentNumber === 1) {
+                    feedback.classList.add('hidden');
+                }
+            }, 2500);
+        }
+
+        function showHint() {
+            if (currentNumber === 1) return;
+            
+            const smallestFactor = getSmallestPrimeFactor(currentNumber);
+            const hintBox = document.getElementById('hintBox');
+            const hintText = document.getElementById('hintText');
+            
+            if (smallestFactor === 2) {
+                hintText.textContent = 'El número es par. ¿Cuál es el único número primo par?';
+            } else if (currentNumber % 3 === 0) {
+                hintText.textContent = 'La suma de los dígitos es divisible por 3. Prueba con 3.';
+            } else if (currentNumber % 5 === 0) {
+                hintText.textContent = 'El número termina en 0 o 5. Prueba con 5.';
+            } else {
+                hintText.textContent = `Prueba números primos pequeños: 2, 3, 5, 7, 11, 13... El menor factor es ${smallestFactor}.`;
+            }
+            
+            hintBox.classList.remove('hidden');
+            hintUsed = true;
+        }
+
+        function resetStats() {
+            stats = { completed: 0, attempts: 0, streak: 0 };
+            document.getElementById('completed').textContent = 0;
+            document.getElementById('attempts').textContent = 0;
+            document.getElementById('streak').textContent = 0;
+            newNumber();
+        }
+
+        // Event listeners
+        document.getElementById('difficulty').addEventListener('change', newNumber);
+        document.getElementById('primeInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkFactor();
+            }
+        });
+
+        // Initialize
+        newNumber();
+    </script>
+</body>
+</html>
