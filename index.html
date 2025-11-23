@@ -16,6 +16,7 @@
 <body>
     <div class="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6">
         <div class="max-w-6xl mx-auto">
+            <!-- Header -->
             <div class="text-center mb-12 pt-8">
                 <div class="flex items-center justify-center gap-3 mb-4 float-animation">
                     <svg class="w-16 h-16 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -28,8 +29,10 @@
                 <p class="text-xl text-gray-600">Aprende matemáticas jugando y divirtiéndote</p>
             </div>
 
+            <!-- Games Grid -->
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 
+                <!-- 1. Operaciones Básicas -->
                 <div class="game-card bg-white rounded-2xl shadow-lg p-6 cursor-pointer" onclick="window.location.href='operaciones.html'">
                     <div class="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
                         <svg class="w-20 h-20 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
@@ -39,6 +42,7 @@
                     <button class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">Jugar Ahora →</button>
                 </div>
 
+                <!-- 2. Factorización (Tu juego existente) -->
                 <div class="game-card bg-white rounded-2xl shadow-lg p-6 cursor-pointer" onclick="window.location.href='factorizacion.html'">
                     <div class="bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
                         <svg class="w-20 h-20 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
@@ -48,4 +52,63 @@
                     <button class="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">Jugar Ahora →</button>
                 </div>
 
-                <div class="game-card bg-white rounded-2xl shadow-lg p-6 cursor-pointer" onclick="window.location.
+                <!-- 3. MCM y MCD (La nueva herramienta) -->
+                <div class="game-card bg-white rounded-2xl shadow-lg p-6 cursor-pointer" onclick="window.location.href='mcm-mcd.html'">
+                    <div class="bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
+                        <svg class="w-20 h-20 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">MCM y MCD</h3>
+                    <p class="text-gray-600 mb-4">Visualiza y comprende el Máximo Común Divisor y Mínimo Común Múltiplo</p>
+                    <button class="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition-colors">Entrar →</button>
+                </div>
+
+                <!-- 4. Ecuaciones (Próximamente) -->
+                <div class="game-card bg-white rounded-2xl shadow-lg p-6 opacity-75">
+                    <div class="bg-gradient-to-br from-yellow-100 to-orange-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
+                        <svg class="w-20 h-20 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Ecuaciones</h3>
+                    <p class="text-gray-600 mb-4">Resuelve ecuaciones de primer y segundo grado</p>
+                    <button class="w-full bg-gray-400 text-white py-3 rounded-lg font-semibold cursor-not-allowed" disabled>Próximamente</button>
+                </div>
+
+                <!-- 5. Fracciones (Próximamente) -->
+                <div class="game-card bg-white rounded-2xl shadow-lg p-6 opacity-75">
+                    <div class="bg-gradient-to-br from-red-100 to-rose-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
+                        <svg class="w-20 h-20 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Fracciones</h3>
+                    <p class="text-gray-600 mb-4">Practica operaciones con fracciones y simplificación</p>
+                    <button class="w-full bg-gray-400 text-white py-3 rounded-lg font-semibold cursor-not-allowed" disabled>Próximamente</button>
+                </div>
+
+                <!-- 6. Porcentajes (Próximamente) -->
+                <div class="game-card bg-white rounded-2xl shadow-lg p-6 opacity-75">
+                    <div class="bg-gradient-to-br from-teal-100 to-cyan-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
+                        <svg class="w-20 h-20 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Porcentajes</h3>
+                    <p class="text-gray-600 mb-4">Calcula porcentajes, aumentos y descuentos</p>
+                    <button class="w-full bg-gray-400 text-white py-3 rounded-lg font-semibold cursor-not-allowed" disabled>Próximamente</button>
+                </div>
+
+            </div>
+
+            <!-- Footer Info -->
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">💡 Consejos para aprender</h3>
+                <p class="text-gray-600">
+                    Empieza con el nivel fácil y ve aumentando la dificultad. 
+                    La práctica constante es la clave para dominar las matemáticas. 
+                    ¡No tengas miedo de equivocarte, es parte del aprendizaje!
+                </p>
+            </div>
+
+            <!-- Credits -->
+            <div class="text-center mt-8 text-gray-500 text-sm">
+                <p>Juegos Matemáticos Interactivos • Creado para el aprendizaje divertido</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
