@@ -11,6 +11,39 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <!-- 3. Babel para traducir el código -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        @keyframes float-particle {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        @keyframes float-side {
+            0%, 100% {
+                transform: translateX(0px) translateY(0px);
+            }
+            25% {
+                transform: translateX(8px) translateY(-12px);
+            }
+            50% {
+                transform: translateX(0px) translateY(-18px);
+            }
+            75% {
+                transform: translateX(-8px) translateY(-12px);
+            }
+        }
+
+        .float-particle {
+            animation: float-particle 3s ease-in-out infinite;
+        }
+
+        .float-side {
+            animation: float-side 4s ease-in-out infinite;
+        }
+    </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
 
@@ -56,6 +89,20 @@
             const gcd = useMemo(() => getGCD(num1, num2), [num1, num2]);
             const lcm = useMemo(() => getLCM(num1, num2), [num1, num2]);
 
+            // Generar velocidades y retrasos aleatorios para cada factor
+            const getAnimationStyle = (index, total, seed) => {
+                const randomDuration = 2.5 + ((seed * 7 + index * 13) % 20) * 0.1; // Entre 2.5s y 4.5s
+                const randomDelay = (seed * 11 + index * 3) % 10 * 0.1; // Entre 0s y 1s
+                const isFloatSide = (seed + index) % 3 === 0; // Algunos usan float-side
+                
+                return {
+                    animation: isFloatSide 
+                        ? `float-side ${randomDuration}s ease-in-out infinite`
+                        : `float-particle ${randomDuration}s ease-in-out infinite`,
+                    animationDelay: `${randomDelay}s`
+                };
+            };
+
             // 2. Lógica Venn
             const vennData = useMemo(() => {
                 const f1Copy = [...factors1];
@@ -87,7 +134,7 @@
                     return {
                         x: centerX + Math.cos(angle) * radius,
                         y: centerY + Math.sin(angle) * radius,
-                        val, color, type
+                        val, color, type, index: i
                     };
                 });
             };
@@ -125,17 +172,9 @@
             return (
                 <div className="p-4 md:p-8 font-sans max-w-5xl mx-auto space-y-8">
                     
-                    {/* BOTÓN VOLVER AL MENÚ */}
-                    <div className="flex items-center justify-between mb-4">
-                        <a href="index.html" className="flex items-center text-purple-700 font-bold hover:text-purple-900 transition-colors">
-                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                            Volver al Menú
-                        </a>
-                        <h1 className="text-lg md:text-2xl font-bold text-gray-800">Calculadora Visual de Factores</h1>
-                    </div>
-
                     {/* Header e Inputs */}
                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 border-l-4 border-purple-500">
+                        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 text-center mb-6">Calculadora Visual de Factores</h1>
                         <div className="flex justify-center gap-8 items-end mb-2 flex-wrap">
                             <div className="text-center">
                                 <label className="block text-sm font-semibold text-blue-600 mb-2">Número A</label>
@@ -160,20 +199,23 @@
                         
                         <div className="relative border border-slate-100 rounded-lg bg-slate-50 flex flex-col items-center p-2 md:p-6">
                             <svg width="100%" height="350" viewBox="0 0 600 350" preserveAspectRatio="xMidYMid meet">
-                                {/* Círculo A */}
-                                <circle cx="240" cy="175" r="110" fill="rgba(59, 130, 246, 0.1)" stroke="#3b82f6" strokeWidth="2" />
+                                {/* Círculo A - Línea más gruesa */}
+                                <circle cx="240" cy="175" r="110" fill="rgba(59, 130, 246, 0.1)" stroke="#3b82f6" strokeWidth="4" />
                                 <text x="140" y="50" fill="#3b82f6" fontWeight="bold" fontSize="16">Num A</text>
                                 
-                                {/* Círculo B */}
-                                <circle cx="360" cy="175" r="110" fill="rgba(34, 197, 94, 0.1)" stroke="#22c55e" strokeWidth="2" />
+                                {/* Círculo B - Línea más gruesa */}
+                                <circle cx="360" cy="175" r="110" fill="rgba(34, 197, 94, 0.1)" stroke="#22c55e" strokeWidth="4" />
                                 <text x="400" y="50" fill="#22c55e" fontWeight="bold" fontSize="16">Num B</text>
 
-                                {vennPositions.map((pos, i) => (
-                                    <g key={i}>
-                                        <circle cx={pos.x} cy={pos.y} r="18" fill={pos.type === 'common' ? '#facc15' : pos.type === 'unique1' ? '#3b82f6' : '#22c55e'} className="transition-all duration-300 hover:r-20 cursor-pointer" />
-                                        <text x={pos.x} y={pos.y} dy=".35em" textAnchor="middle" fill={pos.type === 'common' ? '#713f12' : 'white'} fontWeight="bold" fontSize="16">{pos.val}</text>
-                                    </g>
-                                ))}
+                                {vennPositions.map((pos, i) => {
+                                    const animStyle = getAnimationStyle(pos.index || i, vennPositions.length, 42);
+                                    return (
+                                        <g key={i} style={animStyle}>
+                                            <circle cx={pos.x} cy={pos.y} r="18" fill={pos.type === 'common' ? '#facc15' : pos.type === 'unique1' ? '#3b82f6' : '#22c55e'} className="transition-all duration-300 hover:r-20 cursor-pointer" />
+                                            <text x={pos.x} y={pos.y} dy=".35em" textAnchor="middle" fill={pos.type === 'common' ? '#713f12' : 'white'} fontWeight="bold" fontSize="16">{pos.val}</text>
+                                        </g>
+                                    );
+                                })}
                                 
                                 {vennData.common.length === 0 && <text x="300" y="175" textAnchor="middle" fill="#94a3b8" fontSize="14" fontStyle="italic">Sin factores comunes</text>}
                             </svg>
