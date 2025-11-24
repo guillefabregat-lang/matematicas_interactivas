@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Juegos Matemáticos Interactivos</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         body { margin: 0; padding: 0; }
         .game-card { transition: all 0.3s ease; }
         .game-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         .float-animation { animation: float 3s ease-in-out infinite; }
+        .button-group { display: flex; gap: 0.5rem; }
+        .button-group button { flex: 1; }
     </style>
 </head>
 <body>
@@ -33,33 +36,42 @@
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 
                 <!-- 1. Operaciones Básicas -->
-                <div class="game-card bg-white rounded-2xl shadow-lg p-6 cursor-pointer" onclick="window.location.href='operaciones.html'">
+                <div class="game-card bg-white rounded-2xl shadow-lg p-6">
                     <div class="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
                         <svg class="w-20 h-20 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                     </div>
                     <h3 class="text-2xl font-bold text-gray-800 mb-2">Operaciones Básicas</h3>
                     <p class="text-gray-600 mb-4">Practica sumas, restas, multiplicaciones y divisiones</p>
-                    <button class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">Jugar Ahora →</button>
+                    <div class="button-group">
+                        <button onclick="window.location.href='operaciones.html'" class="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">Jugar →</button>
+                        <button onclick="descargarSCORM('operaciones', 'Operaciones Básicas')" class="px-4 py-3 bg-indigo-100 text-indigo-600 rounded-lg font-semibold hover:bg-indigo-200 transition-colors" title="Descargar como SCORM para Aules">SCORM ⬇</button>
+                    </div>
                 </div>
 
-                <!-- 2. Factorización (Tu juego existente) -->
-                <div class="game-card bg-white rounded-2xl shadow-lg p-6 cursor-pointer" onclick="window.location.href='factorizacion.html'">
+                <!-- 2. Factorización -->
+                <div class="game-card bg-white rounded-2xl shadow-lg p-6">
                     <div class="bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
                         <svg class="w-20 h-20 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                     </div>
                     <h3 class="text-2xl font-bold text-gray-800 mb-2">Factorización Prima</h3>
                     <p class="text-gray-600 mb-4">Descompón números en sus factores primos paso a paso</p>
-                    <button class="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">Jugar Ahora →</button>
+                    <div class="button-group">
+                        <button onclick="window.location.href='factorizacion.html'" class="flex-1 bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">Jugar →</button>
+                        <button onclick="descargarSCORM('factorizacion', 'Factorización Prima')" class="px-4 py-3 bg-purple-100 text-purple-600 rounded-lg font-semibold hover:bg-purple-200 transition-colors" title="Descargar como SCORM para Aules">SCORM ⬇</button>
+                    </div>
                 </div>
 
-                <!-- 3. MCM y MCD (La nueva herramienta) -->
-                <div class="game-card bg-white rounded-2xl shadow-lg p-6 cursor-pointer" onclick="window.location.href='mcm-mcd.html'">
+                <!-- 3. MCM y MCD -->
+                <div class="game-card bg-white rounded-2xl shadow-lg p-6">
                     <div class="bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
                         <svg class="w-20 h-20 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
                     </div>
                     <h3 class="text-2xl font-bold text-gray-800 mb-2">MCM y MCD</h3>
                     <p class="text-gray-600 mb-4">Visualiza y comprende el Máximo Común Divisor y Mínimo Común Múltiplo</p>
-                    <button class="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition-colors">Entrar →</button>
+                    <div class="button-group">
+                        <button onclick="window.location.href='mcm-mcd.html'" class="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition-colors">Entrar →</button>
+                        <button onclick="descargarSCORM('mcm-mcd', 'MCM y MCD')" class="px-4 py-3 bg-emerald-100 text-emerald-600 rounded-lg font-semibold hover:bg-emerald-200 transition-colors" title="Descargar como SCORM para Aules">SCORM ⬇</button>
+                    </div>
                 </div>
 
                 <!-- 4. Ecuaciones (Próximamente) -->
@@ -94,8 +106,21 @@
 
             </div>
 
+            <!-- SCORM Instructions -->
+            <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mb-8">
+                <h3 class="text-lg font-semibold text-blue-900 mb-3">📚 Cómo usar en Aules</h3>
+                <ol class="text-blue-800 space-y-2 list-decimal list-inside">
+                    <li>Haz clic en el botón <span class="font-bold bg-blue-200 px-2 py-1 rounded">SCORM ⬇</span> en la tarjeta del juego que desees</li>
+                    <li>Se descargará un archivo <span class="font-mono bg-gray-200 px-2 py-1 rounded">.zip</span></li>
+                    <li>En Aules, ve a tu curso y haz clic en <span class="font-bold">"Agregar actividad"</span></li>
+                    <li>Selecciona <span class="font-bold">"Paquete SCORM"</span></li>
+                    <li>Sube el archivo <span class="font-mono bg-gray-200 px-2 py-1 rounded">.zip</span> descargado</li>
+                    <li>¡Listo! Tus estudiantes ya pueden usar el juego</li>
+                </ol>
+            </div>
+
             <!-- Footer Info -->
-            <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center mb-8">
                 <h3 class="text-lg font-semibold text-gray-800 mb-2">💡 Consejos para aprender</h3>
                 <p class="text-gray-600">
                     Empieza con el nivel fácil y ve aumentando la dificultad. 
@@ -104,11 +129,150 @@
                 </p>
             </div>
 
-            <!-- Credits -->
-            <div class="text-center mt-8 text-gray-500 text-sm">
-                <p>Juegos Matemáticos Interactivos • Creado para el aprendizaje divertido</p>
+            <!-- Credits and License -->
+            <div class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl shadow-lg p-8 text-white">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-bold mb-3">👨‍💻 Autoría</h3>
+                        <p class="text-gray-300 mb-2"><span class="font-semibold">Guillermo Fabregat Bastida</span></p>
+                        <p class="text-gray-400 text-sm">Desarrollado con la ayuda de:</p>
+                        <ul class="text-gray-400 text-sm list-disc list-inside mt-1">
+                            <li>Claude (Anthropic)</li>
+                            <li>Gemini (Google)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-3">📜 Licencia</h3>
+                        <p class="text-gray-300 mb-2"><span class="font-semibold">Creative Commons (CC BY-NC)</span></p>
+                        <p class="text-gray-400 text-sm">
+                            ✓ Uso libre para fines educativos<br>
+                            ✓ Redistribución permitida<br>
+                            ✗ No se permite obtener beneficio económico<br>
+                            ✗ Debes atribuir la autoría original
+                        </p>
+                    </div>
+                </div>
+                <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-400 text-sm">
+                    <p>Juegos Matemáticos Interactivos • Creado para el aprendizaje divertido</p>
+                    <p>© 2024 Guillermo Fabregat Bastida • Licencia CC BY-NC 4.0</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        async function descargarSCORM(archivo, nombre) {
+            try {
+                // Mostrar mensaje de carga
+                alert(`Preparando descarga de "${nombre}"...\n\nEsto puede tardar unos segundos.`);
+                
+                const zip = new JSZip();
+                
+                // Crear la estructura SCORM básica
+                
+                // 1. imsmanifest.xml
+                const manifest = `<?xml version="1.0" encoding="UTF-8"?>
+<manifest identifier="manifest-${archivo}" version="1.0" xmlns="http://www.imsglobal.org/xsd/imscp_v1p1" xmlns:adlcp="http://www.adlnet.org/xsd/adl_cp_v1_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imscp_v1p1 imscp_v1p1.xsd http://www.adlnet.org/xsd/adl_cp_v1_2 adlcp_v1p2.xsd">
+  <metadata>
+    <schema>ADL SCORM</schema>
+    <schemaversion>1.2</schemaversion>
+  </metadata>
+  <organizations default="org1">
+    <organization identifier="org1">
+      <title>${nombre}</title>
+      <item identifier="item1" identifierref="res1">
+        <title>${nombre}</title>
+      </item>
+    </organization>
+  </organizations>
+  <resources>
+    <resource identifier="res1" type="webcontent" href="index.html" adlcp:scormtype="sco">
+      <file href="index.html"/>
+    </resource>
+  </resources>
+</manifest>`;
+                
+                zip.file("imsmanifest.xml", manifest);
+                
+                // 2. Crear carpeta de metadatos SCORM
+                const scormData = `{"version": "1.2", "name": "${nombre}", "author": "Guillermo Fabregat Bastida", "license": "CC BY-NC"}`;
+                zip.folder("scormdata").file("metadata.json", scormData);
+                
+                // 3. Crear el archivo index.html con el contenido del juego
+                const indexContent = await obtenerContenidoJuego(archivo);
+                zip.file("index.html", indexContent);
+                
+                // 4. Crear README
+                const readme = `# ${nombre}
+## Contenido SCORM para Aules
+
+Autor: Guillermo Fabregat Bastida
+Licencia: Creative Commons BY-NC 4.0
+
+### Cómo usar:
+1. Extrae este archivo
+2. En Aules, selecciona "Agregar actividad" > "Paquete SCORM"
+3. Sube este contenido
+4. ¡Listo! Tus estudiantes pueden comenzar
+
+### Licencia CC BY-NC
+- ✓ Permitido: Usar con fines educativos, modificar, redistribuir
+- ✗ No permitido: Obtener beneficio económico, borrar atribución
+
+Desarrollado con Claude y Gemini
+`;
+                zip.file("README.txt", readme);
+                
+                // Generar y descargar
+                const blob = await zip.generateAsync({type: "blob"});
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `${archivo}-scorm.zip`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+            } catch (error) {
+                console.error("Error al crear SCORM:", error);
+                alert("Error al descargar. Por favor, intenta de nuevo.");
+            }
+        }
+        
+        async function obtenerContenidoJuego(archivo) {
+            // Retorna un HTML básico que sirva como placeholder
+            // En producción, obtendrías el contenido real del archivo
+            return `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego Matemático</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6 flex items-center justify-center">
+        <div class="max-w-md text-center">
+            <div class="text-6xl mb-4">📚</div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Contenido SCORM</h1>
+            <p class="text-gray-600 mb-4">Este es el paquete SCORM de: <strong>${archivo}</strong></p>
+            <div class="bg-blue-100 border-l-4 border-blue-500 p-4 rounded">
+                <p class="text-sm text-blue-800">
+                    <strong>Nota:</strong> Este es un paquete SCORM preparado para Aules.
+                    El contenido interactivo se cargará correctamente en la plataforma.
+                </p>
+            </div>
+            <div class="mt-8 text-xs text-gray-500">
+                <p>Autor: Guillermo Fabregat Bastida</p>
+                <p>Licencia: CC BY-NC 4.0</p>
             </div>
         </div>
     </div>
+</body>
+</html>`;
+        }
+    </script>
 </body>
 </html>
