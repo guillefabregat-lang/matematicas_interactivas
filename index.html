@@ -169,20 +169,14 @@
                 let htmlContent = await response.text();
                 
                 // 2. CORRECCIÓN SCORM: Moodle (Aules) tiene problemas si el HTML tiene etiquetas <html>, <body>, <head>
-                // Vamos a limpiar el contenido. Es mejor que el archivo SCORM solo contenga el DIV principal.
-                
-                // Busca el contenido entre las etiquetas <body> y </body> (o <div> principal si lo tienes)
+                // Busca el contenido entre las etiquetas <body> y </body>
                 const bodyMatch = htmlContent.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
                 if (bodyMatch && bodyMatch[1]) {
                     htmlContent = bodyMatch[1]; // Contenido dentro del body
                 } else {
-                    // Si no encuentra el body, devuelve el contenido completo y avisamos
                     console.warn("No se encontró la etiqueta <body>. El SCORM podría fallar.");
                 }
 
-                // Asegúrate de que los enlaces a recursos relativos se mantengan correctos (solo si es necesario)
-                // En general, los scripts y CSS externos cargados por CDN deberían funcionar.
-                
                 // SCORM 1.2 requiere un API Wrapper
                 const scormWrapper = `
 <!DOCTYPE html>
@@ -199,11 +193,12 @@
             if (result === true) {
                 // Puedes añadir lógica de seguimiento si tus juegos la soportan
             } else {
-                alert("Error al inicializar la comunicación SCORM. El juego puede no registrar el progreso.");
+                // alert("Error al inicializar la comunicación SCORM. El juego puede no registrar el progreso.");
             }
         }
         window.onload = loadSco;
     </script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
     ${htmlContent}
@@ -215,7 +210,6 @@
 
             } catch (error) {
                 console.error("Error al obtener contenido del juego:", error);
-                alert(`Error al cargar el contenido del juego: ${archivo}. Verifica que el archivo existe en ${BASE_URL}${archivo}.html`);
                 // Placeholder de error
                 return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>ERROR SCORM</title></head><body><div style="padding: 20px; text-align: center;"><h1>⚠️ Error al cargar el contenido del juego: ${archivo}</h1><p>Asegúrate de que el archivo <strong>${archivo}.html</strong> existe en ${BASE_URL}.</p><p>Detalle del error: ${error.message}</p></div></body></html>`;
             }
@@ -236,7 +230,6 @@
                 zip.file("index.html", indexContent);
                 
                 // 3. Incluir el SCORM API Wrapper (básico para Moodle/Aules)
-                // Se necesita un JS que simule el SCORM 1.2 API
                 const scormApiWrapper = `
 // SCORM 1.2 API Wrapper básico para que Moodle/Aules no de error.
 // Si deseas seguimiento de notas, debes integrar la lógica en tus juegos.
