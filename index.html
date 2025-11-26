@@ -33,7 +33,7 @@
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 
-                <!-- Lenguaje Algebraico -->
+                <!-- Lenguaje Algebraico CORREGIDO -->
                 <div class="game-card bg-white rounded-2xl shadow-lg p-6">
                     <div class="bg-gradient-to-br from-fuchsia-100 to-purple-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
                         <svg class="w-20 h-20 text-fuchsia-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,8 +43,8 @@
                     <h3 class="text-2xl font-bold text-gray-800 mb-2">Lenguaje Algebraico</h3>
                     <p class="text-gray-600 mb-4">Traduce expresiones del lenguaje común al algebraico</p>
                     <div class="button-group">
-                        <button onclick="abrirJuego('main/lenguaje_algebraico.html')" class="flex-1 bg-fuchsia-600 text-white py-3 rounded-lg font-semibold hover:bg-fuchsia-700 transition-colors">Jugar →</button>
-                        <button onclick="descargarSCORM('main/lenguaje_algebraico', 'Lenguaje Algebraico')" class="px-4 py-3 bg-fuchsia-100 text-fuchsia-600 rounded-lg font-semibold hover:bg-fuchsia-200 transition-colors" title="Descargar como SCORM para Aules">SCORM ⬇</button>
+                        <button onclick="abrirJuego('lenguaje_algebraico.html')" class="flex-1 bg-fuchsia-600 text-white py-3 rounded-lg font-semibold hover:bg-fuchsia-700 transition-colors">Jugar →</button>
+                        <button onclick="descargarSCORM('lenguaje_algebraico', 'Lenguaje Algebraico')" class="px-4 py-3 bg-fuchsia-100 text-fuchsia-600 rounded-lg font-semibold hover:bg-fuchsia-200 transition-colors" title="Descargar como SCORM para Aules">SCORM ⬇</button>
                     </div>
                 </div>
 
@@ -120,37 +120,33 @@
     </div>
 
     <script>
-        // Función mejorada para abrir juegos
+        // Función para abrir juegos
         function abrirJuego(url) {
-            console.log('Intentando abrir:', url);
+            console.log('Abriendo juego:', url);
             window.location.href = url;
         }
 
         // Función para descargar SCORM
         function descargarSCORM(juego, titulo) {
-            alert(`Descargando paquete SCORM para: ${titulo}\n\nEsta funcionalidad está en desarrollo. Por ahora, puedes descargar manualmente los archivos del juego.`);
+            alert(`Descargando paquete SCORM para: ${titulo}\n\nEsta funcionalidad está en desarrollo.`);
         }
 
-        // Verificar si los archivos existen
+        // Verificación de archivos (opcional, para debugging)
         document.addEventListener('DOMContentLoaded', function() {
-            const juegos = [
-                'main/lenguaje_algebraico.html',
-                'operaciones.html', 
-                'factorizacion.html',
-                'mcm-mcd.html'
-            ];
+            console.log('Página cargada correctamente');
             
-            juegos.forEach(juego => {
-                fetch(juego, { method: 'HEAD' })
-                    .then(response => {
-                        if (!response.ok) {
-                            console.warn(`Archivo no encontrado: ${juego}`);
-                        }
-                    })
-                    .catch(error => {
-                        console.warn(`Error al verificar ${juego}:`, error);
-                    });
-            });
+            // Verificar si el archivo de lenguaje algebraico existe
+            fetch('lenguaje_algebraico.html')
+                .then(response => {
+                    if (response.ok) {
+                        console.log('✅ lenguaje_algebraico.html encontrado');
+                    } else {
+                        console.warn('❌ lenguaje_algebraico.html no encontrado');
+                    }
+                })
+                .catch(error => {
+                    console.warn('❌ Error al verificar lenguaje_algebraico.html:', error);
+                });
         });
     </script>
 </body>
