@@ -33,134 +33,322 @@
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 
-                <!-- Lenguaje Algebraico CORREGIDO -->
-                <div class="game-card bg-white rounded-2xl shadow-lg p-6">
-                    <div class="bg-gradient-to-br from-fuchsia-100 to-purple-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
-                        <svg class="w-20 h-20 text-fuchsia-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Lenguaje Algebraico</h3>
-                    <p class="text-gray-600 mb-4">Traduce expresiones del lenguaje común al algebraico</p>
-                    <div class="button-group">
-                        <button onclick="abrirJuego('lenguaje_algebraico.html')" class="flex-1 bg-fuchsia-600 text-white py-3 rounded-lg font-semibold hover:bg-fuchsia-700 transition-colors">Jugar →</button>
-                        <button onclick="descargarSCORM('lenguaje_algebraico', 'Lenguaje Algebraico')" class="px-4 py-3 bg-fuchsia-100 text-fuchsia-600 rounded-lg font-semibold hover:bg-fuchsia-200 transition-colors" title="Descargar como SCORM para Aules">SCORM ⬇</button>
-                    </div>
-                </div>
-
-                <!-- Operaciones básicas -->
                 <div class="game-card bg-white rounded-2xl shadow-lg p-6">
                     <div class="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
-                        <svg class="w-20 h-20 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
+                        <svg class="w-20 h-20 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                     </div>
                     <h3 class="text-2xl font-bold text-gray-800 mb-2">Operaciones Básicas</h3>
                     <p class="text-gray-600 mb-4">Practica sumas, restas, multiplicaciones y divisiones</p>
                     <div class="button-group">
-                        <button onclick="abrirJuego('operaciones.html')" class="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">Jugar →</button>
-                        <button onclick="descargarSCORM('operaciones', 'Operaciones Básicas')" class="px-4 py-3 bg-indigo-100 text-indigo-600 rounded-lg font-semibold hover:bg-indigo-200 transition-colors">SCORM ⬇</button>
+                        <button onclick="window.location.href='operaciones.html'" class="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">Jugar →</button>
+                        <button onclick="descargarSCORM('operaciones', 'Operaciones Básicas')" class="px-4 py-3 bg-indigo-100 text-indigo-600 rounded-lg font-semibold hover:bg-indigo-200 transition-colors" title="Descargar como SCORM para Aules">SCORM ⬇</button>
                     </div>
                 </div>
 
-                <!-- Factorización Prima -->
                 <div class="game-card bg-white rounded-2xl shadow-lg p-6">
                     <div class="bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
-                        <svg class="w-20 h-20 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                        </svg>
+                        <svg class="w-20 h-20 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                     </div>
                     <h3 class="text-2xl font-bold text-gray-800 mb-2">Factorización Prima</h3>
                     <p class="text-gray-600 mb-4">Descompón números en sus factores primos paso a paso</p>
                     <div class="button-group">
-                        <button onclick="abrirJuego('factorizacion.html')" class="flex-1 bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">Jugar →</button>
-                        <button onclick="descargarSCORM('factorizacion', 'Factorización Prima')" class="px-4 py-3 bg-purple-100 text-purple-600 rounded-lg font-semibold hover:bg-purple-200 transition-colors">SCORM ⬇</button>
+                        <button onclick="window.location.href='factorizacion.html'" class="flex-1 bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">Jugar →</button>
+                        <button onclick="descargarSCORM('factorizacion', 'Factorización Prima')" class="px-4 py-3 bg-purple-100 text-purple-600 rounded-lg font-semibold hover:bg-purple-200 transition-colors" title="Descargar como SCORM para Aules">SCORM ⬇</button>
                     </div>
                 </div>
 
-                <!-- MCM y MCD -->
                 <div class="game-card bg-white rounded-2xl shadow-lg p-6">
                     <div class="bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
-                        <svg class="w-20 h-20 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                        </svg>
+                        <svg class="w-20 h-20 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
                     </div>
                     <h3 class="text-2xl font-bold text-gray-800 mb-2">MCM y MCD</h3>
                     <p class="text-gray-600 mb-4">Visualiza y comprende el Máximo Común Divisor y Mínimo Común Múltiplo</p>
                     <div class="button-group">
-                        <button onclick="abrirJuego('mcm-mcd.html')" class="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition-colors">Entrar →</button>
-                        <button onclick="descargarSCORM('mcm-mcd', 'MCM y MCD')" class="px-4 py-3 bg-emerald-100 text-emerald-600 rounded-lg font-semibold hover:bg-emerald-200 transition-colors">SCORM ⬇</button>
+                        <button onclick="window.location.href='mcm-mcd.html'" class="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition-colors">Entrar →</button>
+                        <button onclick="descargarSCORM('mcm-mcd', 'MCM y MCD')" class="px-4 py-3 bg-emerald-100 text-emerald-600 rounded-lg font-semibold hover:bg-emerald-200 transition-colors" title="Descargar como SCORM para Aules">SCORM ⬇</button>
                     </div>
                 </div>
-<!-- Dominó de Potencias -->
-<div class="game-card bg-white rounded-2xl shadow-lg p-6">
-    <div class="bg-gradient-to-br from-teal-100 to-cyan-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
-        <svg class="w-20 h-20 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
-        </svg>
-    </div>
-    <h3 class="text-2xl font-bold text-gray-800 mb-2">Dominó de Potencias</h3>
-    <p class="text-gray-600 mb-4">Conecta las expresiones equivalentes de potencias</p>
-    <div class="button-group">
-        <button onclick="abrirJuego('domino.html')" class="flex-1 bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-700 transition-colors">Jugar →</button>
-        <button onclick="descargarSCORM('domino', 'Dominó de Potencias')" class="px-4 py-3 bg-teal-100 text-teal-600 rounded-lg font-semibold hover:bg-teal-200 transition-colors">SCORM ⬇</button>
-    </div>
-</div>
-                <!-- Próximamente -->
-                <div class="game-card bg-white rounded-2xl shadow-lg p-6 opacity-75">
-                    <div class="bg-gradient-to-br from-yellow-100 to-orange-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
-                        <svg class="w-20 h-20 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+
+                <div class="game-card bg-white rounded-2xl shadow-lg p-6">
+                    <div class="bg-gradient-to-br from-yellow-100 to-amber-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
+                        <svg class="w-20 h-20 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Ecuaciones</h3>
-                    <p class="text-gray-600 mb-4">Resuelve ecuaciones de primer y segundo grado</p>
-                    <button class="w-full bg-gray-400 text-white py-3 rounded-lg font-semibold cursor-not-allowed" disabled>Próximamente</button>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Lenguaje Algebraico</h3>
+                    <p class="text-gray-600 mb-4">Traduce expresiones verbales a notación algebraica</p>
+                    <div class="button-group">
+                        <button onclick="window.location.href='lenguaje_algebraico.html'" class="flex-1 bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition-colors">Jugar →</button>
+                        <button onclick="descargarSCORM('lenguaje_algebraico', 'Lenguaje Algebraico')" class="px-4 py-3 bg-amber-100 text-amber-600 rounded-lg font-semibold hover:bg-amber-200 transition-colors" title="Descargar como SCORM para Aules">SCORM ⬇</button>
+                    </div>
                 </div>
 
                 <div class="game-card bg-white rounded-2xl shadow-lg p-6 opacity-75">
                     <div class="bg-gradient-to-br from-red-100 to-rose-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
-                        <svg class="w-20 h-20 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
-                        </svg>
+                        <svg class="w-20 h-20 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Geometría</h3>
-                    <p class="text-gray-600 mb-4">Explora las formas y sus propiedades</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Fracciones</h3>
+                    <p class="text-gray-600 mb-4">Practica operaciones con fracciones y simplificación</p>
                     <button class="w-full bg-gray-400 text-white py-3 rounded-lg font-semibold cursor-not-allowed" disabled>Próximamente</button>
                 </div>
+
+                <div class="game-card bg-white rounded-2xl shadow-lg p-6 opacity-75">
+                    <div class="bg-gradient-to-br from-teal-100 to-cyan-100 rounded-xl p-4 mb-4 flex items-center justify-center h-32">
+                        <svg class="w-20 h-20 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Porcentajes</h3>
+                    <p class="text-gray-600 mb-4">Calcula porcentajes, aumentos y descuentos</p>
+                    <button class="w-full bg-gray-400 text-white py-3 rounded-lg font-semibold cursor-not-allowed" disabled>Próximamente</button>
+                </div>
+
             </div>
+
+            <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mb-8">
+                <h3 class="text-lg font-semibold text-blue-900 mb-3">📚 Cómo usar en Aules</h3>
+                <ol class="text-blue-800 space-y-2 list-decimal list-inside">
+                    <li>Haz clic en el botón <span class="font-bold bg-blue-200 px-2 py-1 rounded">SCORM ⬇</span> en la tarjeta del juego que desees</li>
+                    <li>Se descargará un archivo <span class="font-mono bg-gray-200 px-2 py-1 rounded">.zip</span></li>
+                    <li>En Aules, ve a tu curso y haz clic en <span class="font-bold">"Agregar actividad"</span></li>
+                    <li>Selecciona <span class="font-bold">"Paquete SCORM"</span></li>
+                    <li>Sube el archivo <span class="font-mono bg-gray-200 px-2 py-1 rounded">.zip</span> descargado</li>
+                    <li>¡Listo! Tus estudiantes ya pueden usar el juego</li>
+                </ol>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">💡 Consejos para aprender</h3>
+                <p class="text-gray-600">
+                    Empieza con el nivel fácil y ve aumentando la dificultad. 
+                    La práctica constante es la clave para dominar las matemáticas. 
+                    ¡No tengas miedo de equivocarte, es parte del aprendizaje!
+                </p>
+            </div>
+
+            <div class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl shadow-lg p-8 text-white">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-bold mb-3">👨‍💻 Autoría</h3>
+                        <p class="text-gray-300 mb-2"><span class="font-semibold">Guillermo Fabregat Bastida</span></p>
+                        <p class="text-gray-400 text-sm">Desarrollado con la ayuda de:</p>
+                        <ul class="text-gray-400 text-sm list-disc list-inside mt-1">
+                            <li>Claude (Anthropic)</li>
+                            <li>Gemini (Google)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-3">📜 Licencia</h3>
+                        <p class="text-gray-300 mb-2"><span class="font-semibold">Creative Commons (CC BY-NC)</span></p>
+                        <p class="text-gray-400 text-sm">
+                            ✓ Uso libre para fines educativos<br>
+                            ✓ Redistribución permitida<br>
+                            ✗ No se permite obtener beneficio económico<br>
+                            ✗ Debes atribuir la autoría original
+                        </p>
+                    </div>
+                </div>
+                <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-400 text-sm">
+                    <p>Juegos Matemáticos Interactivos • Creado para el aprendizaje divertido</p>
+                    <p>© 2024 Guillermo Fabregat Bastida • Licencia CC BY-NC 4.0</p>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <script>
-        // Función para abrir juegos
-        function abrirJuego(url) {
-            console.log('Abriendo juego:', url);
-            window.location.href = url;
+        // 🚨 Configuración de la URL base para el fetch 🚨
+        const BASE_URL = 'https://guillefabregat-lang.github.io/matematicas_interactivas/';
+
+        async function obtenerContenidoJuego(archivo) {
+            try {
+                // Construye la URL completa del archivo del juego
+                const urlJuego = BASE_URL + `${archivo}.html`;
+                
+                // 1. Petición para obtener el contenido HTML del juego (Ej: operaciones.html)
+                const response = await fetch(urlJuego);
+                
+                if (!response.ok) {
+                    throw new Error(`No se pudo cargar el archivo: ${urlJuego} (Status: ${response.status})`);
+                }
+                
+                let htmlContent = await response.text();
+                
+                // 2. CORRECCIÓN SCORM: Moodle (Aules) tiene problemas si el HTML tiene etiquetas <html>, <body>, <head>
+                // Busca el contenido entre las etiquetas <body> y </body>
+                const bodyMatch = htmlContent.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+                if (bodyMatch && bodyMatch[1]) {
+                    htmlContent = bodyMatch[1]; // Contenido dentro del body
+                } else {
+                    console.warn("No se encontró la etiqueta <body>. El SCORM podría fallar.");
+                }
+
+                // SCORM 1.2 requiere un API Wrapper
+                const scormWrapper = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${archivo.toUpperCase()}</title>
+    <script src="scorm_api_wrapper.js"></script>
+    <script>
+        // Inicializa la conexión SCORM 
+        function loadSco() {
+            var result = SCORM.init();
+            if (result === true) {
+                // Puedes añadir lógica de seguimiento si tus juegos la soportan
+            } else {
+                // alert("Error al inicializar la comunicación SCORM. El juego puede no registrar el progreso.");
+            }
+        }
+        window.onload = loadSco;
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    ${htmlContent}
+</body>
+</html>
+                `;
+
+                return scormWrapper;
+
+            } catch (error) {
+                console.error("Error al obtener contenido del juego:", error);
+                // Placeholder de error
+                return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>ERROR SCORM</title></head><body><div style="padding: 20px; text-align: center;"><h1>⚠️ Error al cargar el contenido del juego: ${archivo}</h1><p>Asegúrate de que el archivo <strong>${archivo}.html</strong> existe en ${BASE_URL}.</p><p>Detalle del error: ${error.message}</p></div></body></html>`;
+            }
         }
 
-        // Función para descargar SCORM
-        function descargarSCORM(juego, titulo) {
-            alert(`Descargando paquete SCORM para: ${titulo}\n\nEsta funcionalidad está en desarrollo.`);
-        }
+        async function descargarSCORM(archivo, nombre) {
+            try {
+                // 1. Feedback al usuario
+                const button = document.querySelector(`[onclick="descargarSCORM('${archivo}', '${nombre}')"]`);
+                const originalText = button.innerHTML;
+                button.innerHTML = 'Cargando...';
+                button.disabled = true;
 
-        // Verificación de archivos (opcional, para debugging)
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Página cargada correctamente');
-            
-            // Verificar si el archivo de lenguaje algebraico existe
-            fetch('lenguaje_algebraico.html')
-                .then(response => {
-                    if (response.ok) {
-                        console.log('✅ lenguaje_algebraico.html encontrado');
-                    } else {
-                        console.warn('❌ lenguaje_algebraico.html no encontrado');
-                    }
-                })
-                .catch(error => {
-                    console.warn('❌ Error al verificar lenguaje_algebraico.html:', error);
-                });
-        });
+                const zip = new JSZip();
+                
+                // 2. Obtener el contenido del juego (Esto es lo que estaba fallando)
+                const indexContent = await obtenerContenidoJuego(archivo);
+                zip.file("index.html", indexContent);
+                
+                // 3. Incluir el SCORM API Wrapper (básico para Moodle/Aules)
+                const scormApiWrapper = `
+// SCORM 1.2 API Wrapper básico para que Moodle/Aules no de error.
+// Si deseas seguimiento de notas, debes integrar la lógica en tus juegos.
+var SCORM_API = {
+    LMSInitialize: function(p) { console.log('LMSInitialize', p); return 'true'; },
+    LMSFinish: function(p) { console.log('LMSFinish', p); return 'true'; },
+    LMSGetValue: function(p) { console.log('LMSGetValue', p); return ''; },
+    LMSSetValue: function(p1, p2) { console.log('LMSSetValue', p1, p2); return 'true'; },
+    LMSCommit: function(p) { console.log('LMSCommit', p); return 'true'; },
+    LMSGetLastError: function() { return '0'; },
+    LMSGetErrorString: function(p) { return 'No error'; },
+    LMSGetDiagnostic: function(p) { return ''; }
+};
+
+var SCORM = {
+    init: function() {
+        if (typeof parent.API != 'undefined') {
+            window.API = parent.API;
+        } else if (typeof window.opener != 'undefined' && typeof window.opener.API != 'undefined') {
+            window.API = window.opener.API;
+        } else {
+            // Fallback para entornos sin API SCORM
+            window.API = SCORM_API; 
+        }
+        return window.API.LMSInitialize('');
+    },
+    quit: function() {
+        return window.API.LMSFinish('');
+    },
+    set: function(param, value) {
+        return window.API.LMSSetValue(param, value);
+    },
+    get: function(param) {
+        return window.API.LMSGetValue(param);
+    },
+    commit: function() {
+        return window.API.LMSCommit('');
+    }
+};
+
+window.onunload = function() {
+    SCORM.quit();
+};
+                `;
+                zip.file("scorm_api_wrapper.js", scormApiWrapper);
+
+                // 4. imsmanifest.xml (Corregido para incluir el wrapper JS)
+                const manifest = `<?xml version="1.0" encoding="UTF-8"?>
+<manifest identifier="manifest-${archivo}" version="1.0" xmlns="http://www.imsglobal.org/xsd/imscp_v1p1" xmlns:adlcp="http://www.adlnet.org/xsd/adl_cp_v1_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imscp_v1p1 imscp_v1p1.xsd http://www.adlnet.org/xsd/adl_cp_v1_2 adlcp_v1p2.xsd">
+    <metadata>
+        <schema>ADL SCORM</schema>
+        <schemaversion>1.2</schemaversion>
+    </metadata>
+    <organizations default="org1">
+        <organization identifier="org1">
+            <title>${nombre}</title>
+            <item identifier="item1" identifierref="res1">
+                <title>${nombre}</title>
+            </item>
+        </organization>
+    </organizations>
+    <resources>
+        <resource identifier="res1" type="webcontent" href="index.html" adlcp:scormtype="sco">
+            <file href="index.html"/>
+            <file href="scorm_api_wrapper.js"/>
+        </resource>
+    </resources>
+</manifest>`;
+                
+                zip.file("imsmanifest.xml", manifest);
+                
+                // 5. Crear README
+                const readme = `# ${nombre}
+## Contenido SCORM para Aules (Moodle)
+
+Autor: Guillermo Fabregat Bastida
+Licencia: Creative Commons BY-NC 4.0
+
+### Archivos incluidos:
+- imsmanifest.xml: Fichero de descripción SCORM.
+- index.html: Contenido principal del juego (cargado de ${BASE_URL}${archivo}.html).
+- scorm_api_wrapper.js: Lógica base para la comunicación SCORM 1.2.
+
+### Cómo usar:
+1. Sube el archivo ZIP directamente a Aules/Moodle.
+2. Selecciona "Paquete SCORM" como actividad.
+3. ¡Listo!
+
+Desarrollado con Claude y Gemini
+`;
+                zip.file("README.txt", readme);
+                
+                // 6. Generar y descargar
+                const blob = await zip.generateAsync({type: "blob"});
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `${archivo}_${(new Date()).toISOString().slice(0,10)}_scorm.zip`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                alert(`✅ ¡Descarga de "${nombre}" completa!`);
+                
+            } catch (error) {
+                console.error("Error al crear SCORM:", error);
+                alert("❌ Error al descargar. Revisa la consola para más detalles.");
+            } finally {
+                // Restaurar el botón
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
     </script>
 </body>
 </html>
