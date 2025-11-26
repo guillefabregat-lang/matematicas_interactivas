@@ -12,8 +12,8 @@
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-      color: white;
+      background: linear-gradient(to bottom right, #f0f9ff, #e0f2fe, #fae8ff);
+      color: #1e293b;
       min-height: 100vh;
       padding: 20px;
       display: flex;
@@ -34,23 +34,26 @@
     h1 {
       font-size: 2.5rem;
       margin-bottom: 10px;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(135deg, #0ea5e9, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: none;
     }
 
     .subtitle {
       font-size: 1.2rem;
       margin-bottom: 20px;
-      opacity: 0.9;
+      color: #475569;
     }
 
     .game-info {
       display: flex;
       justify-content: space-between;
       margin-bottom: 20px;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.7);
       padding: 15px;
       border-radius: 10px;
-      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     }
 
     .info-item {
@@ -62,11 +65,12 @@
     .info-value {
       font-size: 1.8rem;
       font-weight: bold;
+      color: #0ea5e9;
     }
 
     .info-label {
       font-size: 0.9rem;
-      opacity: 0.8;
+      color: #64748b;
     }
 
     .game-area {
@@ -84,10 +88,10 @@
     #mano {
       width: 250px;
       min-height: 400px;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.8);
       border-radius: 15px;
       padding: 15px;
-      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -96,8 +100,8 @@
     #tablero {
       flex: 1;
       min-height: 400px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px dashed rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.5);
+      border: 2px dashed #cbd5e1;
       border-radius: 15px;
       position: relative;
       overflow: hidden;
@@ -107,7 +111,7 @@
       width: 120px;
       height: 60px;
       background: white;
-      border: 2px solid #333;
+      border: 2px solid #0ea5e9;
       border-radius: 8px;
       display: flex;
       justify-content: space-between;
@@ -116,18 +120,18 @@
       cursor: grab;
       position: absolute;
       transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       z-index: 10;
     }
 
     .ficha:hover {
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
       transform: scale(1.05);
     }
 
     .ficha.conectada {
-      border-color: #4CAF50;
-      box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+      border-color: #10b981;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
     }
 
     .lado {
@@ -135,7 +139,7 @@
       text-align: center;
       font-size: 18px;
       font-weight: bold;
-      color: #333;
+      color: #1e293b;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -144,7 +148,7 @@
     .separador {
       width: 2px;
       height: 80%;
-      background: #333;
+      background: #0ea5e9;
       border-radius: 1px;
     }
 
@@ -160,7 +164,7 @@
     .botones button {
       padding: 4px 8px;
       font-size: 12px;
-      background: #4CAF50;
+      background: #0ea5e9;
       color: white;
       border: none;
       border-radius: 4px;
@@ -169,7 +173,7 @@
     }
 
     .botones button:hover {
-      background: #45a049;
+      background: #0284c7;
     }
 
     .controls {
@@ -181,7 +185,7 @@
     button {
       padding: 12px 24px;
       font-size: 1rem;
-      background: #FF5722;
+      background: #0ea5e9;
       color: white;
       border: none;
       border-radius: 8px;
@@ -191,7 +195,7 @@
     }
 
     button:hover {
-      background: #E64A19;
+      background: #0284c7;
       transform: translateY(-2px);
       box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
     }
@@ -205,19 +209,21 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
+      background: rgba(255, 255, 255, 0.95);
+      color: #1e293b;
       padding: 20px 40px;
       border-radius: 10px;
       font-size: 1.5rem;
       z-index: 100;
       display: none;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      border: 2px solid #0ea5e9;
     }
 
     .conexion {
       position: absolute;
       height: 4px;
-      background: #4CAF50;
+      background: #10b981;
       z-index: 5;
       transform-origin: 0 0;
     }
@@ -277,7 +283,8 @@
       tiempoRestante: config.tiempoTotal,
       temporizador: null,
       fichasEnTablero: [],
-      conexiones: []
+      conexiones: [],
+      fichaActiva: null
     };
 
     // Expresiones para las fichas
@@ -322,7 +329,8 @@
         tiempoRestante: config.tiempoTotal,
         temporizador: null,
         fichasEnTablero: [],
-        conexiones: []
+        conexiones: [],
+        fichaActiva: null
       };
       
       actualizarUI();
@@ -406,57 +414,74 @@
         verificarConexionesCercanas(div);
       };
 
-      activarArrastre(div, f);
+      activarArrastre(div);
       return div;
     }
 
-    // Activar arrastre de fichas
-    function activarArrastre(elem, fichaData) {
-      let offsetX, offsetY, isDragging = false;
+    // Activar arrastre de fichas - CORREGIDO
+    function activarArrastre(elem) {
+      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+      
+      elem.onmousedown = dragMouseDown;
 
-      elem.onmousedown = (e) => {
-        isDragging = true;
-        offsetX = e.clientX - elem.offsetLeft;
-        offsetY = e.clientY - elem.offsetTop;
+      function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // Obtener la posición inicial del cursor
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
         elem.style.zIndex = "1000";
-        document.onmousemove = (e) => {
-          elem.style.left = (e.clientX - offsetX) + "px";
-          elem.style.top = (e.clientY - offsetY) + "px";
-        };
-      };
+        estado.fichaActiva = elem;
+      }
 
-      document.onmouseup = () => {
-        if (isDragging) {
-          document.onmousemove = null;
-          elem.style.zIndex = "10";
-          isDragging = false;
-          
-          // Si la ficha se suelta en el tablero, agregarla al estado
-          const rect = tablero.getBoundingClientRect();
-          const fichaRect = elem.getBoundingClientRect();
-          
-          if (
-            fichaRect.left >= rect.left && 
-            fichaRect.right <= rect.right &&
-            fichaRect.top >= rect.top && 
-            fichaRect.bottom <= rect.bottom
-          ) {
-            // Verificar si la ficha ya está en el tablero
-            if (!estado.fichasEnTablero.some(f => f.id == elem.dataset.id)) {
-              estado.fichasEnTablero.push({
-                id: parseInt(elem.dataset.id),
-                elemento: elem,
-                valor: parseInt(elem.dataset.valor),
-                x: parseInt(elem.style.left),
-                y: parseInt(elem.style.top),
-                rotacion: parseInt(elem.dataset.rotacion)
-              });
-            }
-            
-            verificarConexionesCercanas(elem);
+      function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // Calcular la nueva posición
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        // Establecer la nueva posición
+        elem.style.top = (elem.offsetTop - pos2) + "px";
+        elem.style.left = (elem.offsetLeft - pos1) + "px";
+      }
+
+      function closeDragElement() {
+        // Detener el movimiento
+        document.onmouseup = null;
+        document.onmousemove = null;
+        elem.style.zIndex = "10";
+        
+        // Verificar si la ficha se soltó en el tablero
+        const rect = tablero.getBoundingClientRect();
+        const fichaRect = elem.getBoundingClientRect();
+        
+        if (
+          fichaRect.left >= rect.left && 
+          fichaRect.right <= rect.right &&
+          fichaRect.top >= rect.top && 
+          fichaRect.bottom <= rect.bottom
+        ) {
+          // Verificar si la ficha ya está en el tablero
+          if (!estado.fichasEnTablero.some(f => f.id == elem.dataset.id)) {
+            estado.fichasEnTablero.push({
+              id: parseInt(elem.dataset.id),
+              elemento: elem,
+              valor: parseInt(elem.dataset.valor),
+              x: parseInt(elem.style.left),
+              y: parseInt(elem.style.top),
+              rotacion: parseInt(elem.dataset.rotacion)
+            });
           }
+          
+          verificarConexionesCercanas(elem);
         }
-      };
+        
+        estado.fichaActiva = null;
+      }
     }
 
     // Verificar conexiones cercanas
@@ -560,7 +585,7 @@
       messageElement.textContent = texto;
       messageElement.style.display = 'block';
       messageElement.style.background = esVictoria ? 
-        'rgba(76, 175, 80, 0.9)' : 'rgba(0, 0, 0, 0.8)';
+        'rgba(16, 185, 129, 0.9)' : 'rgba(255, 255, 255, 0.95)';
       
       setTimeout(() => {
         messageElement.style.display = 'none';
