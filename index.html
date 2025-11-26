@@ -151,94 +151,80 @@
     </div>
 
     <script>
-        // 🚨 Configuración de la URL base para el fetch 🚨
+        // Configuración de la URL base
         const BASE_URL = 'https://guillefabregat-lang.github.io/matematicas_interactivas/';
 
         async function obtenerContenidoJuego(archivo) {
             try {
-                // Construye la URL completa del archivo del juego
                 const urlJuego = BASE_URL + `${archivo}.html`;
-                
-                // 1. Petición para obtener el contenido HTML del juego (Ej: operaciones.html)
                 const response = await fetch(urlJuego);
                 
                 if (!response.ok) {
-                    throw new Error(`No se pudo cargar el archivo: ${urlJuego} (Status: ${response.status})`);
+                    throw new Error(`No se pudo cargar: ${urlJuego} (Status: ${response.status})`);
                 }
                 
                 let htmlContent = await response.text();
                 
-                // 2. CORRECCIÓN SCORM: Moodle (Aules) tiene problemas si el HTML tiene etiquetas <html>, <body>, <head>
-                // Busca el contenido entre las etiquetas <body> y </body>
+                // Extraer solo el contenido del body
                 const bodyMatch = htmlContent.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
                 if (bodyMatch && bodyMatch[1]) {
-                    htmlContent = bodyMatch[1]; // Contenido dentro del body
-                } else {
-                    console.warn("No se encontró la etiqueta <body>. El SCORM podría fallar.");
+                    htmlContent = bodyMatch[1];
                 }
 
-                // SCORM 1.2 requiere un API Wrapper
-                const scormWrapper = `
-<!DOCTYPE html>
+                // Crear el wrapper SCORM
+                const scormWrapper = `<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${archivo.toUpperCase()}</title>
-    <script src="scorm_api_wrapper.js"></script>
+    <title>${archivo}</title>
+    <script src="scorm_api_wrapper.js"><\/script>
+    <script src="https://cdn.tailwindcss.com"><\/script>
     <script>
-        // Inicializa la conexión SCORM 
         function loadSco() {
-            var result = SCORM.init();
-            if (result === true) {
-                // Puedes añadir lógica de seguimiento si tus juegos la soportan
-            } else {
-                // alert("Error al inicializar la comunicación SCORM. El juego puede no registrar el progreso.");
+            if (typeof SCORM !== 'undefined') {
+                SCORM.init();
             }
         }
         window.onload = loadSco;
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <\/script>
 </head>
 <body>
     ${htmlContent}
 </body>
-</html>
-                `;
+</html>`;
 
                 return scormWrapper;
 
             } catch (error) {
-                console.error("Error al obtener contenido del juego:", error);
-                // Placeholder de error
-                return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>ERROR SCORM</title></head><body><div style="padding: 20px; text-align: center;"><h1>⚠️ Error al cargar el contenido del juego: ${archivo}</h1><p>Asegúrate de que el archivo <strong>${archivo}.html</strong> existe en ${BASE_URL}.</p><p>Detalle del error: ${error.message}</p></div></body></html>`;
+                console.error("Error:", error);
+                return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>ERROR</title></head><body><div style="padding: 20px;"><h1>Error: ${archivo}</h1><p>${error.message}</p></div></body></html>`;
             }
         }
 
         async function descargarSCORM(archivo, nombre) {
+            let button = null;
+            
             try {
-                // 1. Feedback al usuario
-                const button = document.querySelector(`[onclick="descargarSCORM('${archivo}', '${nombre}')"]`);
-                const originalText = button.innerHTML;
-                button.innerHTML = 'Cargando...';
+                // Obtener el botón
+                button = event.target;
+                const originalText = button.textContent;
+                button.textContent = 'Cargando...';
                 button.disabled = true;
 
                 const zip = new JSZip();
                 
-                // 2. Obtener el contenido del juego (Esto es lo que estaba fallando)
+                // Obtener contenido del juego
                 const indexContent = await obtenerContenidoJuego(archivo);
                 zip.file("index.html", indexContent);
                 
-                // 3. Incluir el SCORM API Wrapper (básico para Moodle/Aules)
-                const scormApiWrapper = `
-// SCORM 1.2 API Wrapper básico para que Moodle/Aules no de error.
-// Si deseas seguimiento de notas, debes integrar la lógica en tus juegos.
-var SCORM_API = {
-    LMSInitialize: function(p) { console.log('LMSInitialize', p); return 'true'; },
-    LMSFinish: function(p) { console.log('LMSFinish', p); return 'true'; },
-    LMSGetValue: function(p) { console.log('LMSGetValue', p); return ''; },
-    LMSSetValue: function(p1, p2) { console.log('LMSSetValue', p1, p2); return 'true'; },
-    LMSCommit: function(p) { console.log('LMSCommit', p); return 'true'; },
+                // SCORM API Wrapper
+                const scormApiWrapper = `var SCORM_API = {
+    LMSInitialize: function(p) { return 'true'; },
+    LMSFinish: function(p) { return 'true'; },
+    LMSGetValue: function(p) { return ''; },
+    LMSSetValue: function(p1, p2) { return 'true'; },
+    LMSCommit: function(p) { return 'true'; },
     LMSGetLastError: function() { return '0'; },
     LMSGetErrorString: function(p) { return 'No error'; },
     LMSGetDiagnostic: function(p) { return ''; }
@@ -251,8 +237,7 @@ var SCORM = {
         } else if (typeof window.opener != 'undefined' && typeof window.opener.API != 'undefined') {
             window.API = window.opener.API;
         } else {
-            // Fallback para entornos sin API SCORM
-            window.API = SCORM_API; 
+            window.API = SCORM_API;
         }
         return window.API.LMSInitialize('');
     },
@@ -271,12 +256,12 @@ var SCORM = {
 };
 
 window.onunload = function() {
-    SCORM.quit();
-};
-                `;
+    if (typeof SCORM !== 'undefined') SCORM.quit();
+};`;
+                
                 zip.file("scorm_api_wrapper.js", scormApiWrapper);
 
-                // 4. imsmanifest.xml (Corregido para incluir el wrapper JS)
+                // imsmanifest.xml
                 const manifest = `<?xml version="1.0" encoding="UTF-8"?>
 <manifest identifier="manifest-${archivo}" version="1.0" xmlns="http://www.imsglobal.org/xsd/imscp_v1p1" xmlns:adlcp="http://www.adlnet.org/xsd/adl_cp_v1_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imscp_v1p1 imscp_v1p1.xsd http://www.adlnet.org/xsd/adl_cp_v1_2 adlcp_v1p2.xsd">
     <metadata>
@@ -301,33 +286,16 @@ window.onunload = function() {
                 
                 zip.file("imsmanifest.xml", manifest);
                 
-                // 5. Crear README
-                const readme = `# ${nombre}
-## Contenido SCORM para Aules (Moodle)
-
-Autor: Guillermo Fabregat Bastida
-Licencia: Creative Commons BY-NC 4.0
-
-### Archivos incluidos:
-- imsmanifest.xml: Fichero de descripción SCORM.
-- index.html: Contenido principal del juego (cargado de ${BASE_URL}${archivo}.html).
-- scorm_api_wrapper.js: Lógica base para la comunicación SCORM 1.2.
-
-### Cómo usar:
-1. Sube el archivo ZIP directamente a Aules/Moodle.
-2. Selecciona "Paquete SCORM" como actividad.
-3. ¡Listo!
-
-Desarrollado con Claude y Gemini
-`;
+                // README
+                const readme = `${nombre}\nContenido SCORM para Aules\n\nAutor: Guillermo Fabregat Bastida\nLicencia: CC BY-NC 4.0`;
                 zip.file("README.txt", readme);
                 
-                // 6. Generar y descargar
+                // Generar y descargar
                 const blob = await zip.generateAsync({type: "blob"});
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement("a");
                 link.href = url;
-                link.download = `${archivo}_${(new Date()).toISOString().slice(0,10)}_scorm.zip`;
+                link.download = `${archivo}_${new Date().toISOString().slice(0,10)}_scorm.zip`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -336,12 +304,13 @@ Desarrollado con Claude y Gemini
                 alert(`✅ ¡Descarga de "${nombre}" completa!`);
                 
             } catch (error) {
-                console.error("Error al crear SCORM:", error);
-                alert("❌ Error al descargar. Revisa la consola para más detalles.");
+                console.error("Error:", error);
+                alert("❌ Error al descargar. Revisa la consola.");
             } finally {
-                // Restaurar el botón
-                button.innerHTML = originalText;
-                button.disabled = false;
+                if (button) {
+                    button.textContent = button.textContent === 'Cargando...' ? 'SCORM ⬇' : button.textContent;
+                    button.disabled = false;
+                }
             }
         }
     </script>
