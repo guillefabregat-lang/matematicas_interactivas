@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matemáticas Interactivas: Álgebra</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+    <style>
+        /* --- ESTILOS GENERALES --- */
+        :root {
+            --primary: #4A90E2;
+            --secondary: #50E3C2;
+            --bg: #F5F7FA;
+            --text: #333;
+            --card-bg: #fff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 { color: var(--primary); }
+
+        /* --- PESTAÑAS DE NAVEGACIÓN --- */
+        .tabs {
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: #ddd;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 5px 5px 0 0;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            font-weight: bold;
+        }
+
+        /* --- CONTENEDORES DE JUEGO --- */
+        .game-container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+            display: none; /* Oculto por defecto */
+            text-align: center;
+        }
+
+        .game-container.active { display: block; }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        /* --- ESTILOS MODO 1 (DRAG & DROP) --- */
+        .drop-zone {
+            min-height: 60px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: #fafafa;
+            padding: 10px;
+        }
+
+        .block-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .draggable-block {
+            background: var(--primary);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: grab;
+            user-select: none;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .draggable-block:active { cursor: grabbing; }
+
+        /* --- ESTILOS MODO 2 (SIMPLIFICAR) --- */
+        .math-display {
+            font-size: 1.5rem;
+            margin: 20px 0;
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            font-size: 1.2rem;
+        }
+
+        .coef-input {
+            width: 50px;
+            padding: 5px;
+            text-align: center;
+            font-size: 1.1rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+
+        /* --- BOTONES Y FEEDBACK --- */
+        .action-btn {
+            background: var(--secondary);
+            border: none;
+            padding: 10px 25px;
+            color: #004d40;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 15px;
+        }
+
+        .action-btn:hover { transform: scale(1.05); }
+
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            height: 20px;
+        }
+        .correct { color: #27ae60; }
+        .incorrect { color: #e74c3c; }
+
+    </style>
+</head>
+<body>
+
+    <h1>Matemáticas Interactivas</h1>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchMode(1)">Modo 1: Traducir</button>
+        <button class="tab-btn" onclick="switchMode(2)">Modo 2: Simplificar</button>
+    </div>
+
+    <div id="mode1" class="game-container active">
+        <h2>Construye la Expresión</h2>
+        <p class="question-text" id="m1-question">Cargando pregunta...</p>
+
+        <div class="drop-zone" id="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <span style="color: #999; font-size: 0.9rem; pointer-events: none;">Arrastra los bloques aquí</span>
+        </div>
+
+        <div class="block-container" id="source-zone">
+            </div>
+
+        <button class="action-btn" onclick="checkMode1()">Comprobar</button>
+        <button class="action-btn" id="m1-next" style="display:none; background:#ddd;" onclick="loadMode1Question()">Siguiente</button>
+        <div id="m1-feedback" class="feedback"></div>
+    </div>
+
+    <div id="mode2" class="game-container">
+        <h2>Simplifica la Expresión</h2>
+        <p>Suma los términos semejantes y escribe los coeficientes.</p>
+        
+        <div id="m2-math" class="math-display"></div>
+
+        <div class="input-group">
+            <input type="number" class="coef-input" id="input-a"> \(x^2\) 
+            <span style="margin: 0 5px">+</span>
+            <input type="number" class="coef-input" id="input-b"> \(x\) 
+            <span style="margin: 0 5px">+</span>
+            <input type="number" class="coef-input" id="input-c">
+        </div>
+
+        <button class="action-btn" onclick="checkMode2()">Comprobar</button>
+        <button class="action-btn" id="m2-next" style="display:none; background:#ddd;" onclick="loadMode2Question()">Siguiente</button>
+        <div id="m2-feedback" class="feedback"></div>
+    </div>
+
+    <script>
+        /* ================= DATOS DE EJEMPLO ================= */
+        const questionsMode1 = [
+            {
+                text: "El doble de un número más cinco",
+                correct: ["2x+5"], // Sin espacios para facilitar validación
+                blocks: ["2", "x", "+", "5", "-", "3"]
+            },
+            {
+                text: "El triple de la suma de un número y dos",
+                correct: ["3(x+2)"],
+                blocks: ["3", "(", "x", "+", "2", ")", "x", "5"]
+            },
+            {
+                text: "La mitad de un número menos uno",
+                correct: ["x/2-1", "1/2x-1"],
+                blocks: ["x", "/", "2", "-", "1", "+", "2"]
+            }
+        ];
+
+        const questionsMode2 = [
+            { latex: "(3x^2 + 2x) + (4x^2 - 5x + 3)", a: 7, b: -3, c: 3 },
+            { latex: "(x^2 - 4) - (2x^2 + x - 5)", a: -1, b: -1, c: 1 }, // 1-2=-1, 0-1=-1, -4-(-5)=1
+            { latex: "2(x^2 + 3x) + 4", a: 2, b: 6, c: 4 }
+        ];
+
+        let currentQ1 = 0;
+        let currentQ2 = 0;
+
+        /* ================= LÓGICA GENERAL ================= */
+        function switchMode(mode) {
+            document.querySelectorAll('.game-container').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`mode${mode}`).classList.add('active');
+            document.querySelectorAll('.tab-btn')[mode-1].classList.add('active');
+            
+            // Renderizar KaTeX en los labels estáticos del input cuando se cambia de pestaña
+            renderMathLabels(); 
+        }
+
+        function renderMathLabels() {
+            // Renderiza los x^2 y x de los inputs una sola vez
+            renderMathInElement(document.body);
+        }
+
+        /* ================= LÓGICA MODO 1 (DRAG & DROP) ================= */
+        function loadMode1Question() {
+            const q = questionsMode1[currentQ1];
+            document.getElementById('m1-question').innerText = q.text;
+            document.getElementById('m1-feedback').innerText = "";
+            document.getElementById('m1-next').style.display = "none";
+            
+            // Limpiar zonas
+            const dropZone = document.getElementById('drop-zone');
+            dropZone.innerHTML = '<span style="color: #999; font-size: 0.9rem; pointer-events: none;">Arrastra los bloques aquí</span>';
+            const sourceZone = document.getElementById('source-zone');
+            sourceZone.innerHTML = '';
+
+            // Crear bloques
+            q.blocks.forEach((val, index) => {
+                let div = document.createElement('div');
+                div.className = 'draggable-block';
+                div.draggable = true;
+                div.id = `blk-${index}`;
+                div.innerText = val;
+                div.ondragstart = drag;
+                sourceZone.appendChild(div);
+            });
+        }
+
+        function allowDrop(ev) { ev.preventDefault(); }
+        
+        function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+        
+        function drop(ev) {
+            ev.preventDefault();
+            var data = ev.dataTransfer.getData("text");
+            var draggedElement = document.getElementById(data);
+            
+            // Si hay texto de ayuda, borrarlo
+            if(ev.target.id === "drop-zone" && ev.target.querySelector('span')) {
+                ev.target.innerHTML = "";
+            }
+
+            // Permitir soltar en drop-zone o devolver a source-zone
+            if (ev.target.id === "drop-zone" || ev.target.id === "source-zone") {
+                ev.target.appendChild(draggedElement);
+            } else if (ev.target.className === "draggable-block") {
+                // Si suelta encima de otro bloque, añadir al padre de ese bloque
+                ev.target.parentNode.appendChild(draggedElement);
+            }
+        }
+
+        function checkMode1() {
+            const dropZone = document.getElementById('drop-zone');
+            let builtExpression = "";
+            // Recorrer hijos para construir string
+            for (let child of dropZone.children) {
+                if (child.className.includes('draggable-block')) {
+                    builtExpression += child.innerText;
+                }
+            }
+
+            const q = questionsMode1[currentQ1];
+            const feedback = document.getElementById('m1-feedback');
+
+            if (q.correct.includes(builtExpression)) {
+                feedback.innerText = "¡Correcto! 🎉";
+                feedback.className = "feedback correct";
+                document.getElementById('m1-next').style.display = "inline-block";
+                currentQ1 = (currentQ1 + 1) % questionsMode1.length;
+            } else {
+                feedback.innerText = "Incorrecto, intenta otra vez.";
+                feedback.className = "feedback incorrect";
+            }
+        }
+
+        /* ================= LÓGICA MODO 2 (SIMPLIFICAR) ================= */
+        function loadMode2Question() {
+            const q = questionsMode2[currentQ2];
+            const mathEl = document.getElementById('m2-math');
+            
+            // Renderizar con KaTeX
+            katex.render(q.latex, mathEl, { throwOnError: false, displayMode: true });
+
+            // Limpiar inputs
+            document.getElementById('input-a').value = '';
+            document.getElementById('input-b').value = '';
+            document.getElementById('input-c').value = '';
+            document.getElementById('m2-feedback').innerText = "";
+            document.getElementById('m2-next').style.display = "none";
+        }
+
+        function checkMode2() {
+            const q = questionsMode2[currentQ2];
+            
+            // Obtener valores (si está vacío es 0)
+            const uA = parseInt(document.getElementById('input-a').value) || 0;
+            const uB = parseInt(document.getElementById('input-b').value) || 0;
+            const uC = parseInt(document.getElementById('input-c').value) || 0;
+
+            const feedback = document.getElementById('m2-feedback');
+
+            if (uA === q.a && uB === q.b && uC === q.c) {
+                feedback.innerText = "¡Excelente! Has simplificado correctamente.";
+                feedback.className = "feedback correct";
+                document.getElementById('m2-next').style.display = "inline-block";
+                currentQ2 = (currentQ2 + 1) % questionsMode2.length;
+            } else {
+                feedback.innerText = "Ups, revisa los coeficientes.";
+                feedback.className = "feedback incorrect";
+            }
+        }
+
+        // Función auxiliar para renderizar fórmulas en el body al inicio
+        function renderMathInElement(el) {
+            renderMathLabels(); // Llama a la funcion de renderizado
+        }
+
+        /* ================= INICIALIZACIÓN ================= */
+        window.onload = function() {
+            loadMode1Question();
+            loadMode2Question();
+        };
+
+    </script>
+</body>
+</html>
