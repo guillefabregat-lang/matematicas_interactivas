@@ -8,6 +8,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      user-select: none; /* Evitar selección de texto al arrastrar */
     }
 
     body {
@@ -27,9 +28,7 @@
       text-align: center;
     }
 
-    header {
-      margin-bottom: 20px;
-    }
+    header { margin-bottom: 20px; }
 
     h1 {
       font-size: 2.5rem;
@@ -39,11 +38,7 @@
       -webkit-text-fill-color: transparent;
     }
 
-    .subtitle {
-      font-size: 1.2rem;
-      margin-bottom: 20px;
-      color: #475569;
-    }
+    .subtitle { font-size: 1.2rem; color: #475569; margin-bottom: 20px; }
 
     .game-info {
       display: flex;
@@ -55,38 +50,24 @@
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     }
 
-    .info-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .info-value {
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: #0ea5e9;
-    }
-
-    .info-label {
-      font-size: 0.9rem;
-      color: #64748b;
-    }
+    .info-item { display: flex; flex-direction: column; align-items: center; }
+    .info-value { font-size: 1.8rem; font-weight: bold; color: #0ea5e9; }
+    .info-label { font-size: 0.9rem; color: #64748b; }
 
     .game-area {
       display: flex;
       gap: 20px;
       margin-bottom: 20px;
+      height: 600px; /* Altura fija para el área de juego */
     }
 
     @media (max-width: 768px) {
-      .game-area {
-        flex-direction: column;
-      }
+      .game-area { flex-direction: column; height: auto; }
+      #tablero { min-height: 400px; }
     }
 
     #mano {
       width: 280px;
-      min-height: 500px;
       background: rgba(255, 255, 255, 0.8);
       border-radius: 15px;
       padding: 15px;
@@ -94,19 +75,33 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 15px;
+      overflow-y: auto;
     }
 
     #tablero {
       flex: 1;
-      min-height: 500px;
       background: rgba(255, 255, 255, 0.5);
       border: 2px dashed #cbd5e1;
       border-radius: 15px;
       position: relative;
-      overflow: visible;
+      overflow: hidden; /* Importante para que no salgan scrollbars infinitos */
     }
 
+    /* Contenedor lógico de la ficha */
+    .ficha-container {
+      position: absolute;
+      width: 140px;
+      height: 70px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      /* Transiciones suaves solo para transform, no para left/top durante arrastre */
+      transition: transform 0.2s, box-shadow 0.2s; 
+    }
+
+    /* La parte visual de la ficha */
     .ficha {
       width: 140px;
       height: 70px;
@@ -117,22 +112,18 @@
       justify-content: space-between;
       align-items: center;
       padding: 10px;
-      cursor: move;
-      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: grab;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      z-index: 10;
+      /* La rotación se aplica aquí */
+      transform-origin: center center;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
-    .ficha-container {
-      position: absolute;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+    .ficha:active { cursor: grabbing; }
 
     .ficha:hover {
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-      transform: scale(1.05);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      z-index: 100;
     }
 
     .lado {
@@ -147,34 +138,22 @@
       padding: 5px;
       border-radius: 5px;
       background: rgba(14, 165, 233, 0.05);
-      transform: rotate(0deg);
-      transition: none;
     }
     
-    .ficha[data-rotacion="90"] .lado,
-    .ficha[data-rotacion="-270"] .lado {
-      transform: rotate(-90deg);
-    }
-    
-    .ficha[data-rotacion="180"] .lado,
-    .ficha[data-rotacion="-180"] .lado {
-      transform: rotate(-180deg);
-    }
-    
-    .ficha[data-rotacion="270"] .lado,
-    .ficha[data-rotacion="-90"] .lado {
-      transform: rotate(-270deg);
-    }
+    /* Manejo visual de la rotación del texto interno para que siempre se lea bien */
+    .ficha[data-rotacion="90"] .lado, .ficha[data-rotacion="-270"] .lado { transform: rotate(-90deg); }
+    .ficha[data-rotacion="180"] .lado, .ficha[data-rotacion="-180"] .lado { transform: rotate(-180deg); }
+    .ficha[data-rotacion="270"] .lado, .ficha[data-rotacion="-90"] .lado { transform: rotate(-270deg); }
 
     .lado.match {
       background: rgba(16, 185, 129, 0.2);
       border: 2px solid #10b981;
-      animation: pulse 1s ease-in-out;
+      animation: pulse 1s infinite alternate;
     }
 
     @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
+      from { box-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
+      to { box-shadow: 0 0 15px rgba(16, 185, 129, 0.8); }
     }
 
     .separador {
@@ -184,14 +163,18 @@
       border-radius: 2px;
     }
 
+    /* Botones de rotación posicionados fuera del área de colisión */
     .botones {
-      margin-top: 8px;
+      position: absolute;
+      bottom: -40px;
+      left: 0;
+      width: 100%;
       display: flex;
-      gap: 8px;
+      justify-content: center;
+      gap: 10px;
       opacity: 0;
-      transition: opacity 0.3s;
-      pointer-events: none;
-      z-index: 1001;
+      transition: opacity 0.2s;
+      pointer-events: none; /* Inactivos hasta que se vean */
     }
 
     .ficha-container:hover .botones,
@@ -201,30 +184,20 @@
     }
 
     .botones button {
-      padding: 6px 12px;
-      font-size: 14px;
+      padding: 5px 10px;
+      font-size: 12px;
       background: #8b5cf6;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 15px;
       cursor: pointer;
-      transition: background 0.2s;
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
+    .botones button:hover { background: #7c3aed; transform: scale(1.1); }
 
-    .botones button:hover {
-      background: #7c3aed;
-    }
+    .controls { display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
 
-    .controls {
-      display: flex;
-      gap: 15px;
-      margin-top: 20px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    button {
+    button.control-btn {
       padding: 12px 24px;
       font-size: 1rem;
       background: #0ea5e9;
@@ -235,12 +208,7 @@
       transition: all 0.3s;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-
-    button:hover {
-      background: #0284c7;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-    }
+    button.control-btn:hover { background: #0284c7; transform: translateY(-2px); }
 
     .message {
       position: fixed;
@@ -252,20 +220,21 @@
       padding: 30px 50px;
       border-radius: 15px;
       font-size: 1.5rem;
-      z-index: 1000;
+      z-index: 2000;
       display: none;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
       border: 3px solid #0ea5e9;
+      text-align: center;
     }
 
     .conexion {
       position: absolute;
-      height: 5px;
-      background: linear-gradient(90deg, #10b981, #34d399);
+      height: 4px;
+      background: #10b981;
       z-index: 5;
-      transform-origin: 0 0;
-      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.5);
-      border-radius: 3px;
+      transform-origin: 0 50%;
+      border-radius: 2px;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -273,7 +242,7 @@
   <div class="container">
     <header>
       <h1>🎲 Dominó de Potencias</h1>
-      <p class="subtitle">Conecta los lados con valores equivalentes</p>
+      <p class="subtitle">Arrastra, conecta y evita superponer las piezas</p>
     </header>
 
     <div class="game-info">
@@ -294,89 +263,68 @@
     <div class="game-area">
       <div id="mano">
         <h3 style="margin-bottom: 10px;">Tu Mano</h3>
-        <p style="font-size: 0.9rem; color: #64748b;">Arrastra al tablero →</p>
       </div>
       <div id="tablero"></div>
     </div>
 
     <div class="controls">
-      <button id="btn-nueva-partida">🎮 Nueva Partida</button>
-      <button id="btn-voltear-todas">🔄 Voltear Todas</button>
-      <button id="btn-pista">💡 Pista</button>
+      <button class="control-btn" id="btn-nueva-partida">🎮 Nueva Partida</button>
+      <button class="control-btn" id="btn-pista">💡 Pista</button>
     </div>
   </div>
 
   <div class="message" id="message"></div>
 
   <script>
-    // Configuración
+    // --- CONFIGURACIÓN ---
     const config = {
       tiempoTotal: 180,
       puntosPorConexion: 15,
-      distanciaConexion: 80,
-      distanciaEnganche: 100, // Distancia para activar enganche magnético
-      fuerzaEnganche: 15 // Píxeles de ajuste para enganche
+      distanciaEnganche: 50, // Píxeles de cercanía para activar el imán
     };
 
-    // Estado del juego
+    // --- ESTADO ---
     let estado = {
       puntuacion: 0,
       conexiones: 0,
       tiempoRestante: config.tiempoTotal,
       temporizador: null,
-      fichasEnTablero: [],
-      lineasConexion: [],
-      gruposConectados: [] // Grupos de fichas que se mueven juntas
+      fichasEnTablero: [], // Array de objetos {id, container, elemento, valorA, valorB}
+      gruposConectados: []
     };
 
-    // Banco de expresiones con sus valores
+    // --- DATOS MATEMÁTICOS ---
     const expresiones = [
-      { expr: "2²", valor: 4 },
-      { expr: "4", valor: 4 },
-      { expr: "2³", valor: 8 },
-      { expr: "8", valor: 8 },
-      { expr: "2⁴", valor: 16 },
-      { expr: "16", valor: 16 },
-      { expr: "4²", valor: 16 },
-      { expr: "2⁵", valor: 32 },
-      { expr: "32", valor: 32 },
-      { expr: "3²", valor: 9 },
-      { expr: "9", valor: 9 },
-      { expr: "3³", valor: 27 },
-      { expr: "27", valor: 27 },
-      { expr: "5²", valor: 25 },
-      { expr: "25", valor: 25 },
-      { expr: "5³", valor: 125 },
-      { expr: "125", valor: 125 },
-      { expr: "10²", valor: 100 },
-      { expr: "100", valor: 100 },
-      { expr: "6²", valor: 36 },
-      { expr: "36", valor: 36 },
-      { expr: "√16", valor: 4 },
-      { expr: "√64", valor: 8 },
-      { expr: "√81", valor: 9 },
-      { expr: "2²×2", valor: 8 },
-      { expr: "3×3", valor: 9 }
+      { expr: "2²", valor: 4 }, { expr: "4", valor: 4 },
+      { expr: "2³", valor: 8 }, { expr: "8", valor: 8 },
+      { expr: "2⁴", valor: 16 }, { expr: "16", valor: 16 }, { expr: "4²", valor: 16 },
+      { expr: "2⁵", valor: 32 }, { expr: "32", valor: 32 },
+      { expr: "3²", valor: 9 }, { expr: "9", valor: 9 }, { expr: "3×3", valor: 9 },
+      { expr: "3³", valor: 27 }, { expr: "27", valor: 27 },
+      { expr: "5²", valor: 25 }, { expr: "25", valor: 25 },
+      { expr: "5³", valor: 125 }, { expr: "125", valor: 125 },
+      { expr: "10²", valor: 100 }, { expr: "100", valor: 100 },
+      { expr: "6²", valor: 36 }, { expr: "36", valor: 36 },
+      { expr: "√16", valor: 4 }, { expr: "√64", valor: 8 }, { expr: "√81", valor: 9 }
     ];
 
-    // Elementos DOM
     const tablero = document.getElementById('tablero');
     const mano = document.getElementById('mano');
 
-    // Crear fichas de dominó (con DOS VALORES DIFERENTES)
+    // --- GENERACIÓN DE FICHAS ---
     function generarFichas() {
       const fichas = [];
       const expUsadas = new Set();
       
-      // Crear 10 fichas con valores diferentes en cada lado
       for (let i = 0; i < 10; i++) {
         let exp1, exp2;
-        
-        // Buscar dos expresiones con valores DIFERENTES
+        // Evitar dobles triviales y repetidos exactos
+        let intentos = 0;
         do {
           exp1 = expresiones[Math.floor(Math.random() * expresiones.length)];
           exp2 = expresiones[Math.floor(Math.random() * expresiones.length)];
-        } while (exp1.valor === exp2.valor || expUsadas.has(exp1.expr + exp2.expr));
+          intentos++;
+        } while ((exp1.valor === exp2.valor || expUsadas.has(exp1.expr + exp2.expr)) && intentos < 50);
         
         expUsadas.add(exp1.expr + exp2.expr);
         
@@ -387,18 +335,16 @@
           rotacion: 0
         });
       }
-      
       return fichas;
     }
 
-    // Crear elemento ficha
     function crearFicha(f) {
-      // Crear contenedor
       const container = document.createElement("div");
       container.className = "ficha-container";
       container.dataset.id = f.id;
+      // Posición relativa inicial en la mano
+      container.style.position = "relative"; 
       
-      // Crear ficha
       const div = document.createElement("div");
       div.className = "ficha";
       div.dataset.valorA = f.ladoA.valor;
@@ -406,17 +352,16 @@
       div.dataset.rotacion = f.rotacion || 0;
 
       div.innerHTML = `
-        <div class="lado lado-a" data-valor="${f.ladoA.valor}">${f.ladoA.expr}</div>
+        <div class="lado lado-a">${f.ladoA.expr}</div>
         <div class="separador"></div>
-        <div class="lado lado-b" data-valor="${f.ladoB.valor}">${f.ladoB.expr}</div>
+        <div class="lado lado-b">${f.ladoB.expr}</div>
       `;
       
-      // Crear botones (fuera de la ficha, en el contenedor)
       const botones = document.createElement("div");
       botones.className = "botones";
       botones.innerHTML = `
-        <button class="rotarL" onclick="event.stopPropagation(); rotarFicha(${f.id}, -90)">↺ 90°</button>
-        <button class="rotarR" onclick="event.stopPropagation(); rotarFicha(${f.id}, 90)">↻ 90°</button>
+        <button onmousedown="event.stopPropagation()" onclick="rotarFicha(${f.id}, -90)">↺</button>
+        <button onmousedown="event.stopPropagation()" onclick="rotarFicha(${f.id}, 90)">↻</button>
       `;
       
       container.appendChild(div);
@@ -426,405 +371,391 @@
       return container;
     }
 
-    // Activar arrastre
+    // --- LÓGICA DE ARRASTRE Y COLISIONES (CORE) ---
+
     function activarArrastre(container, fichaElem) {
       let offsetX, offsetY;
+      let startX, startY; // Para revertir movimiento
       let grupoArrastrado = [];
+      let isDragging = false;
 
       container.addEventListener('mousedown', iniciarArrastre);
 
       function iniciarArrastre(e) {
-        // Si se hace clic en los botones de rotación, no arrastrar
         if (e.target.tagName === 'BUTTON') return;
-        
         e.preventDefault();
-        
-        // Si la ficha está en la mano, moverla primero al tablero
+
+        // 1. Si está en la mano, pasar al tablero
         if (container.parentElement === mano) {
-          // Colocar fichas en columna al bajarlas al tablero
-          const fichasEnMano = mano.querySelectorAll('.ficha-container').length;
-          const posicionX = 50 + (fichasEnMano * 160) % 600; // Distribuir en horizontal
-          const posicionY = 50 + Math.floor((fichasEnMano * 160) / 600) * 100; // Nueva fila cada 4 fichas
+          const rectMano = container.getBoundingClientRect();
+          const rectTab = tablero.getBoundingClientRect();
           
           tablero.appendChild(container);
           container.style.position = 'absolute';
-          container.style.left = posicionX + 'px';
-          container.style.top = posicionY + 'px';
+          // Calcular posición relativa al tablero donde estaba en la pantalla
+          const relativeLeft = rectMano.left - rectTab.left;
+          const relativeTop = rectMano.top - rectTab.top;
+          
+          container.style.left = relativeLeft + 'px';
+          container.style.top = relativeTop + 'px';
         }
-        
+
+        // 2. Preparar arrastre
         const rect = container.getBoundingClientRect();
         const tableroRect = tablero.getBoundingClientRect();
+
+        // Guardar posición inicial por si el movimiento es inválido
+        startX = parseFloat(container.style.left);
+        startY = parseFloat(container.style.top);
         
-        // Calcular el offset exacto desde donde se hizo clic hasta la esquina superior izquierda
+        // Offset del ratón respecto a la esquina de la ficha
         offsetX = e.clientX - rect.left;
         offsetY = e.clientY - rect.top;
 
-        // Encontrar el grupo de fichas conectadas que se deben mover juntas
+        // Identificar si esta ficha es parte de un grupo conectado
         grupoArrastrado = obtenerGrupoConectado(parseInt(container.dataset.id));
         
-        // Poner todas las fichas del grupo en z-index alto
-        grupoArrastrado.forEach(fichaData => {
-          fichaData.container.style.zIndex = "1000";
-          fichaData.container.style.cursor = "grabbing";
-          // Guardar posición inicial relativa
-          const fichaRect = fichaData.container.getBoundingClientRect();
-          fichaData.offsetX = fichaRect.left - rect.left;
-          fichaData.offsetY = fichaRect.top - rect.top;
+        // Preparar visualmente todo el grupo
+        grupoArrastrado.forEach(f => {
+          f.container.style.zIndex = "1000";
+          f.container.style.cursor = "grabbing";
+          // Desactivar transición para que el arrastre sea instantáneo y fluido
+          f.container.style.transition = "none";
+          
+          const fRect = f.container.getBoundingClientRect();
+          // Offset relativo de cada ficha del grupo respecto a la ficha principal
+          f.deltaX = fRect.left - rect.left;
+          f.deltaY = fRect.top - rect.top;
         });
 
+        isDragging = true;
         document.addEventListener('mousemove', arrastrar);
         document.addEventListener('mouseup', soltarFicha);
       }
 
       function arrastrar(e) {
+        if (!isDragging) return;
         e.preventDefault();
         
         const tableroRect = tablero.getBoundingClientRect();
-        
-        // Posicionar todas las fichas del grupo manteniendo sus posiciones relativas
-        grupoArrastrado.forEach(fichaData => {
-          let x = e.clientX - tableroRect.left - offsetX + fichaData.offsetX;
-          let y = e.clientY - tableroRect.top - offsetY + fichaData.offsetY;
+        const mouseX = e.clientX - tableroRect.left;
+        const mouseY = e.clientY - tableroRect.top;
 
-          fichaData.container.style.left = x + "px";
-          fichaData.container.style.top = y + "px";
+        // Mover todo el grupo
+        grupoArrastrado.forEach(f => {
+          let x = mouseX - offsetX + f.deltaX;
+          let y = mouseY - offsetY + f.deltaY;
+          f.container.style.left = x + "px";
+          f.container.style.top = y + "px";
         });
       }
 
       function soltarFicha(e) {
+        isDragging = false;
         document.removeEventListener('mousemove', arrastrar);
         document.removeEventListener('mouseup', soltarFicha);
-        
-        grupoArrastrado.forEach(fichaData => {
-          fichaData.container.style.zIndex = "10";
-          fichaData.container.style.cursor = "move";
+
+        // 1. Intentar ENGANCHE MAGNÉTICO (Snap)
+        const fichaPrincipal = grupoArrastrado.find(f => f.container === container);
+        const seEngancho = intentarEnganche(fichaPrincipal, grupoArrastrado);
+
+        // 2. Verificar COLISIONES (Superposición)
+        let hayColision = false;
+        grupoArrastrado.forEach(f => {
+          if (verificarColisionConOtras(f, grupoArrastrado)) hayColision = true;
+          
+          // Verificar límites del tablero
+          const r = f.container.getBoundingClientRect();
+          const t = tablero.getBoundingClientRect();
+          if (r.left < t.left || r.top < t.top || r.right > t.right || r.bottom > t.bottom) {
+             hayColision = true; // Salio del tablero
+          }
         });
 
-        // Añadir a tablero si no está ya
-        const fichaId = parseInt(container.dataset.id);
-        if (!estado.fichasEnTablero.find(f => f.id === fichaId)) {
-          estado.fichasEnTablero.push({
-            id: fichaId,
-            container: container,
-            elemento: fichaElem,
-            valorA: parseInt(fichaElem.dataset.valorA),
-            valorB: parseInt(fichaElem.dataset.valorB)
+        if (hayColision) {
+          // REVERTIR MOVIMIENTO
+          grupoArrastrado.forEach(f => {
+            if (f.container === container) {
+              f.container.style.left = startX + "px";
+              f.container.style.top = startY + "px";
+            } else {
+              // Recalcular posición original basada en la ficha principal
+              // Esto simplifica asumiendo que el grupo mantiene estructura rígida
+              // (En una implementación perfecta guardaríamos startX/Y de cada uno)
+              f.container.style.left = (startX + f.deltaX) + "px";
+              f.container.style.top = (startY + f.deltaY) + "px";
+            }
           });
+          
+          if(!seEngancho) mostrarMensaje("❌ Lugar ocupado", false);
+        } else {
+          // MOVIMIENTO VÁLIDO
+          // Registrar fichas en el estado global si son nuevas en el tablero
+          const fichaId = parseInt(container.dataset.id);
+          if (!estado.fichasEnTablero.find(f => f.id === fichaId)) {
+            estado.fichasEnTablero.push({
+              id: fichaId,
+              container: container,
+              elemento: fichaElem,
+              valorA: parseInt(fichaElem.dataset.valorA),
+              valorB: parseInt(fichaElem.dataset.valorB)
+            });
+          }
         }
 
-        // Aplicar enganche magnético
-        aplicarEngancheMagnetico(container, fichaElem);
+        // Restaurar estilos y verificar puntos
+        grupoArrastrado.forEach(f => {
+          f.container.style.zIndex = "10";
+          f.container.style.cursor = "grab";
+          f.container.style.transition = "transform 0.2s, box-shadow 0.2s";
+        });
         
         verificarConexiones();
       }
     }
-    
-    // Obtener todas las fichas conectadas en un grupo
-    function obtenerGrupoConectado(fichaId) {
-      const fichaInicial = estado.fichasEnTablero.find(f => f.id === fichaId);
-      if (!fichaInicial) return [];
-      
-      const grupo = [fichaInicial];
-      const visitados = new Set([fichaId]);
-      const porVisitar = [fichaId];
-      
-      while (porVisitar.length > 0) {
-        const actualId = porVisitar.shift();
-        
-        // Buscar fichas conectadas a esta
-        estado.fichasEnTablero.forEach(otraFicha => {
-          if (visitados.has(otraFicha.id)) return;
-          
-          // Verificar si están conectadas
-          if (estanConectadas(actualId, otraFicha.id)) {
-            visitados.add(otraFicha.id);
-            porVisitar.push(otraFicha.id);
-            grupo.push(otraFicha);
-          }
-        });
+
+    // --- FUNCIONES DE GEOMETRÍA Y FÍSICA ---
+
+    function verificarColisionConOtras(fichaData, grupoIgnorar) {
+      const margen = 2; // Pequeño margen de tolerancia
+      const rect1 = fichaData.container.getBoundingClientRect();
+      const idsIgnorar = grupoIgnorar.map(g => g.id);
+
+      // Reducir rect colisión un poco (hitbox más pequeño que visual)
+      const r1 = {
+        left: rect1.left + margen, right: rect1.right - margen,
+        top: rect1.top + margen, bottom: rect1.bottom - margen
+      };
+
+      for (let otra of estado.fichasEnTablero) {
+        if (idsIgnorar.includes(otra.id)) continue; // No chocar consigo misma ni su grupo
+
+        const rect2 = otra.container.getBoundingClientRect();
+        const r2 = {
+          left: rect2.left + margen, right: rect2.right - margen,
+          top: rect2.top + margen, bottom: rect2.bottom - margen
+        };
+
+        // Detección AABB (Axis-Aligned Bounding Box)
+        const superponen = !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
+        if (superponen) return true;
       }
-      
-      return grupo;
-    }
-    
-    // Verificar colisiones con otras fichas
-    function verificarColisiones(containerMoviendo, x, y, grupoMoviendo) {
-      const idsGrupo = new Set(grupoMoviendo.map(f => f.container.dataset.id));
-      const margen = 5; // Píxeles de separación mínima
-      
-      // Dimensiones aproximadas de la ficha (considerando rotación)
-      const anchoFicha = 140;
-      const altoFicha = 70;
-      
-      let xFinal = x;
-      let yFinal = y;
-      
-      // Verificar colisión con cada otra ficha
-      estado.fichasEnTablero.forEach(otraFicha => {
-        // No verificar colisión con fichas del mismo grupo
-        if (idsGrupo.has(otraFicha.container.dataset.id.toString())) return;
-        
-        const otroX = parseFloat(otraFicha.container.style.left) || 0;
-        const otroY = parseFloat(otraFicha.container.style.top) || 0;
-        
-        // Calcular si hay solapamiento en eje X
-        const solapamientoX = Math.abs(xFinal - otroX) < (anchoFicha + margen);
-        // Calcular si hay solapamiento en eje Y
-        const solapamientoY = Math.abs(yFinal - otroY) < (altoFicha + margen);
-        
-        if (solapamientoX && solapamientoY) {
-          // Hay colisión, ajustar posición
-          const dx = xFinal - otroX;
-          const dy = yFinal - otroY;
-          
-          // Empujar en la dirección con mayor separación
-          if (Math.abs(dx) > Math.abs(dy)) {
-            // Separar horizontalmente
-            xFinal = otroX + (dx > 0 ? anchoFicha + margen : -(anchoFicha + margen));
-          } else {
-            // Separar verticalmente
-            yFinal = otroY + (dy > 0 ? altoFicha + margen : -(altoFicha + margen));
-          }
-        }
-      });
-      
-      return { x: xFinal, y: yFinal };
-    }
-    function estanConectadas(fichaId1, fichaId2) {
-      const ficha1 = estado.fichasEnTablero.find(f => f.id === fichaId1);
-      const ficha2 = estado.fichasEnTablero.find(f => f.id === fichaId2);
-      
-      if (!ficha1 || !ficha2) return false;
-      
-      const rect1 = ficha1.elemento.getBoundingClientRect();
-      const rect2 = ficha2.elemento.getBoundingClientRect();
-      
-      const ladosA1 = getLadosCentros(rect1, parseInt(ficha1.elemento.dataset.rotacion) || 0);
-      const ladosA2 = getLadosCentros(rect2, parseInt(ficha2.elemento.dataset.rotacion) || 0);
-      
-      // Verificar todas las combinaciones de lados
-      const combinaciones = [
-        { lado1: 'izq', valor1: ficha1.valorA, lado2: 'izq', valor2: ficha2.valorA },
-        { lado1: 'izq', valor1: ficha1.valorA, lado2: 'der', valor2: ficha2.valorB },
-        { lado1: 'der', valor1: ficha1.valorB, lado2: 'izq', valor2: ficha2.valorA },
-        { lado1: 'der', valor1: ficha1.valorB, lado2: 'der', valor2: ficha2.valorB }
-      ];
-      
-      for (const combo of combinaciones) {
-        if (combo.valor1 === combo.valor2) {
-          const p1 = ladosA1[combo.lado1];
-          const p2 = ladosA2[combo.lado2];
-          const dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
-          
-          if (dist < config.distanciaConexion) {
-            return true;
-          }
-        }
-      }
-      
       return false;
     }
-    
-    // Aplicar enganche magnético a fichas cercanas
-    function aplicarEngancheMagnetico(fichaContainerArrastrado, fichaElemArrastrado) {
-      const fichaId = parseInt(fichaContainerArrastrado.dataset.id);
-      const fichaData = estado.fichasEnTablero.find(f => f.id === fichaId);
-      if (!fichaData) return;
+
+    function intentarEnganche(fichaData, grupo) {
+      const idMov = fichaData.id;
+      const rectMov = fichaData.container.getBoundingClientRect();
+      const rotMov = parseInt(fichaData.elemento.dataset.rotacion) || 0;
       
-      const rect1 = fichaElemArrastrado.getBoundingClientRect();
-      const rotacion1 = parseInt(fichaElemArrastrado.dataset.rotacion) || 0;
-      const ladosA1 = getLadosCentros(rect1, rotacion1);
-      const tableroRect = tablero.getBoundingClientRect();
-      
-      // Buscar la ficha más cercana con valor compatible
-      let mejorEnganche = null;
-      let menorDistancia = config.distanciaEnganche;
-      
-      estado.fichasEnTablero.forEach(otraFicha => {
-        if (otraFicha.id === fichaId) return;
-        
-        const rect2 = otraFicha.elemento.getBoundingClientRect();
-        const rotacion2 = parseInt(otraFicha.elemento.dataset.rotacion) || 0;
-        const ladosA2 = getLadosCentros(rect2, rotacion2);
-        
-        // Verificar todas las combinaciones de lados
+      let mejorDistancia = config.distanciaEnganche;
+      let ajuste = null;
+
+      const ladosMov = getLadosCentros(rectMov, rotMov);
+
+      // Buscar posibles conexiones con fichas fijas
+      estado.fichasEnTablero.forEach(fija => {
+        // Ignorar si es del mismo grupo
+        if (grupo.find(g => g.id === fija.id)) return;
+
+        const rectFija = fija.container.getBoundingClientRect();
+        const rotFija = parseInt(fija.elemento.dataset.rotacion) || 0;
+        const ladosFija = getLadosCentros(rectFija, rotFija);
+
         const combinaciones = [
-          { lado1: 'izq', valor1: fichaData.valorA, lado2: 'der', valor2: otraFicha.valorB, p1: ladosA1.izq, p2: ladosA2.der },
-          { lado1: 'der', valor1: fichaData.valorB, lado2: 'izq', valor2: otraFicha.valorA, p1: ladosA1.der, p2: ladosA2.izq }
+          { pMov: ladosMov.izq, valMov: fichaData.valorA, pFija: ladosFija.izq, valFija: fija.valorA },
+          { pMov: ladosMov.izq, valMov: fichaData.valorA, pFija: ladosFija.der, valFija: fija.valorB },
+          { pMov: ladosMov.der, valMov: fichaData.valorB, pFija: ladosFija.izq, valFija: fija.valorA },
+          { pMov: ladosMov.der, valMov: fichaData.valorB, pFija: ladosFija.der, valFija: fija.valorB }
         ];
-        
+
         combinaciones.forEach(combo => {
-          if (combo.valor1 === combo.valor2) {
-            const dist = Math.sqrt(Math.pow(combo.p1.x - combo.p2.x, 2) + Math.pow(combo.p1.y - combo.p2.y, 2));
+          if (combo.valMov === combo.valFija) {
+            const dist = Math.hypot(combo.pMov.x - combo.pFija.x, combo.pMov.y - combo.pFija.y);
             
-            if (dist < menorDistancia) {
-              menorDistancia = dist;
-              
-              // Calcular la distancia exacta entre bordes para que no se superpongan
-              let offsetEnganche = 140; // Ancho de la ficha
-              
-              // Si están en perpendicular (una a 90° de la otra), ajustar
-              const difRotacion = Math.abs(rotacion1 - rotacion2) % 180;
-              if (difRotacion === 90) {
-                offsetEnganche = 70; // Mitad del ancho cuando están perpendiculares
-              }
-              
-              // Calcular vector de dirección entre los dos puntos
-              const dx = combo.p2.x - combo.p1.x;
-              const dy = combo.p2.y - combo.p1.y;
-              const distActual = Math.sqrt(dx * dx + dy * dy);
-              
-              if (distActual > 0) {
-                // Normalizar y aplicar la distancia correcta
-                const factorNorm = offsetEnganche / distActual;
-                mejorEnganche = {
-                  ajusteX: dx * factorNorm,
-                  ajusteY: dy * factorNorm
-                };
-              }
+            if (dist < mejorDistancia) {
+              mejorDistancia = dist;
+              // Calculamos el vector exacto para mover pMov sobre pFija
+              ajuste = { 
+                dx: combo.pFija.x - combo.pMov.x,
+                dy: combo.pFija.y - combo.pMov.y 
+              };
             }
           }
         });
       });
-      
-      // Aplicar el enganche si se encontró uno
-      if (mejorEnganche) {
-        const left = parseFloat(fichaContainerArrastrado.style.left) || 0;
-        const top = parseFloat(fichaContainerArrastrado.style.top) || 0;
-        
-        fichaContainerArrastrado.style.left = (left + mejorEnganche.ajusteX) + "px";
-        fichaContainerArrastrado.style.top = (top + mejorEnganche.ajusteY) + "px";
+
+      if (ajuste) {
+        // Aplicar ajuste a todo el grupo
+        grupo.forEach(f => {
+          const curLeft = parseFloat(f.container.style.left);
+          const curTop = parseFloat(f.container.style.top);
+          f.container.style.left = (curLeft + ajuste.dx) + "px";
+          f.container.style.top = (curTop + ajuste.dy) + "px";
+        });
+        return true;
       }
+      return false;
     }
 
-    // Rotar ficha
+    // Calcula el centro geométrico de los lados izquierdo y derecho visuales
+    function getLadosCentros(rect, rot) {
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      
+      // Vector del centro al lado derecho (sin rotación) -> (70, 0) porque ancho es 140
+      // Vector del centro al lado izquierdo -> (-70, 0)
+      const radio = 70; 
+      
+      // Convertir a radianes
+      const rad = (rot * Math.PI) / 180;
+      
+      // Rotar el vector (radio, 0)
+      const dx = Math.cos(rad) * radio;
+      const dy = Math.sin(rad) * radio;
+
+      return {
+        der: { x: cx + dx, y: cy + dy },
+        izq: { x: cx - dx, y: cy - dy }
+      };
+    }
+
+    function obtenerGrupoConectado(fichaId) {
+      // Búsqueda en anchura (BFS) para encontrar todas las fichas conectadas
+      const raiz = estado.fichasEnTablero.find(f => f.id === fichaId);
+      if (!raiz) return [{ // Si aún no está en tablero (recién salida de mano), es grupo de 1
+         container: document.querySelector(`.ficha-container[data-id="${fichaId}"]`),
+         id: fichaId
+      }];
+
+      const grupo = [raiz];
+      const visitados = new Set([fichaId]);
+      const cola = [raiz];
+
+      while (cola.length > 0) {
+        const actual = cola.shift();
+        
+        // Buscar vecinos conectados
+        estado.fichasEnTablero.forEach(otra => {
+          if (!visitados.has(otra.id) && estanConectadasFisicamente(actual, otra)) {
+            visitados.add(otra.id);
+            grupo.push(otra);
+            cola.push(otra);
+          }
+        });
+      }
+      return grupo;
+    }
+
+    function estanConectadasFisicamente(f1, f2) {
+      // Verifica si dos fichas están lo suficientemente cerca y alineadas
+      const r1 = f1.container.getBoundingClientRect();
+      const r2 = f2.container.getBoundingClientRect();
+      const rot1 = parseInt(f1.elemento.dataset.rotacion) || 0;
+      const rot2 = parseInt(f2.elemento.dataset.rotacion) || 0;
+      
+      const pts1 = getLadosCentros(r1, rot1);
+      const pts2 = getLadosCentros(r2, rot2);
+      
+      const threshold = 5; // Tolerancia muy baja porque el imán las pone exactas
+      
+      // Revisar cruces
+      const cruces = [
+         {d: Math.hypot(pts1.izq.x - pts2.izq.x, pts1.izq.y - pts2.izq.y), match: f1.valorA === f2.valorA},
+         {d: Math.hypot(pts1.izq.x - pts2.der.x, pts1.izq.y - pts2.der.y), match: f1.valorA === f2.valorB},
+         {d: Math.hypot(pts1.der.x - pts2.izq.x, pts1.der.y - pts2.izq.y), match: f1.valorB === f2.valorA},
+         {d: Math.hypot(pts1.der.x - pts2.der.x, pts1.der.y - pts2.der.y), match: f1.valorB === f2.valorB}
+      ];
+      
+      return cruces.some(c => c.d < threshold && c.match);
+    }
+
+    // --- ROTACIÓN ---
     function rotarFicha(fichaId, grados) {
-      const container = document.querySelector(`[data-id="${fichaId}"]`);
+      const container = document.querySelector(`.ficha-container[data-id="${fichaId}"]`);
       if (!container) return;
-      
       const ficha = container.querySelector('.ficha');
-      if (!ficha) return;
-      
-      // Actualizar rotación
+
       let rotActual = parseInt(ficha.dataset.rotacion) || 0;
       rotActual += grados;
       
-      // Normalizar a -270, -180, -90, 0, 90, 180, 270
+      // Normalizar angulo
       while (rotActual > 180) rotActual -= 360;
       while (rotActual < -180) rotActual += 360;
-      
+
       ficha.dataset.rotacion = rotActual;
-      
-      // Aplicar rotación a la ficha
       ficha.style.transform = `rotate(${rotActual}deg)`;
-      ficha.style.transformOrigin = 'center center';
-      
-      setTimeout(() => verificarConexiones(), 100);
+
+      // Esperar a que acabe transición visual para verificar
+      setTimeout(() => {
+        verificarConexiones();
+      }, 300);
     }
 
-    // Verificar conexiones entre fichas
+    // --- PUNTUACIÓN Y UI ---
     function verificarConexiones() {
-      // Limpiar conexiones visuales previas
+      // Limpiar líneas anteriores
       document.querySelectorAll('.conexion').forEach(c => c.remove());
       document.querySelectorAll('.lado.match').forEach(l => l.classList.remove('match'));
-      
-      let conexionesEncontradas = 0;
 
-      estado.fichasEnTablero.forEach((ficha1, idx1) => {
-        estado.fichasEnTablero.forEach((ficha2, idx2) => {
-          if (idx1 >= idx2) return;
+      let conexionesTotal = 0;
+      const visitados = new Set();
 
-          const rect1 = ficha1.elemento.getBoundingClientRect();
-          const rect2 = ficha2.elemento.getBoundingClientRect();
-          const tableroRect = tablero.getBoundingClientRect();
+      estado.fichasEnTablero.forEach(f1 => {
+        estado.fichasEnTablero.forEach(f2 => {
+          if (f1.id >= f2.id) return; // Evitar duplicados
 
-          // Obtener centros de cada lado
-          const ladosA1 = getLadosCentros(rect1, parseInt(ficha1.elemento.dataset.rotacion) || 0);
-          const ladosA2 = getLadosCentros(rect2, parseInt(ficha2.elemento.dataset.rotacion) || 0);
-
-          // Verificar si algún lado de ficha1 está cerca de algún lado de ficha2 CON EL MISMO VALOR
-          [
-            { lado1: 'izq', valor1: ficha1.valorA, lado2: 'izq', valor2: ficha2.valorA },
-            { lado1: 'izq', valor1: ficha1.valorA, lado2: 'der', valor2: ficha2.valorB },
-            { lado1: 'der', valor1: ficha1.valorB, lado2: 'izq', valor2: ficha2.valorA },
-            { lado1: 'der', valor1: ficha1.valorB, lado2: 'der', valor2: ficha2.valorB }
-          ].forEach(combo => {
-            if (combo.valor1 === combo.valor2) {
-              const p1 = ladosA1[combo.lado1];
-              const p2 = ladosA2[combo.lado2];
-              const dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
-
-              if (dist < config.distanciaConexion) {
-                dibujarLinea(p1.x, p1.y, p2.x, p2.y, tableroRect);
-                marcarLadosConectados(ficha1.elemento, combo.lado1, ficha2.elemento, combo.lado2);
-                conexionesEncontradas++;
-              }
-            }
-          });
+          if (estanConectadasFisicamente(f1, f2)) {
+             dibujarLineaEntreFichas(f1, f2);
+             conexionesTotal++;
+          }
         });
       });
 
-      if (conexionesEncontradas !== estado.conexiones) {
-        estado.conexiones = conexionesEncontradas;
-        estado.puntuacion = conexionesEncontradas * config.puntosPorConexion;
+      // Actualizar estado solo si cambia
+      if (conexionesTotal !== estado.conexiones) {
+        estado.conexiones = conexionesTotal;
+        estado.puntuacion = conexionesTotal * config.puntosPorConexion;
         actualizarUI();
-
-        if (conexionesEncontradas >= 9) {
-          mostrarMensaje("🎉 ¡Felicidades! Has conectado todas las fichas", true);
+        
+        if (conexionesTotal >= 9 && estado.fichasEnTablero.length === 10) {
+          mostrarMensaje("🎉 ¡Juego Completado!", true);
           clearInterval(estado.temporizador);
         }
       }
     }
 
-    // Obtener centros de los lados de una ficha según rotación
-    function getLadosCentros(rect, rotacion) {
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const w = 70; // Ancho de la ficha / 2
+    function dibujarLineaEntreFichas(f1, f2) {
+       const r1 = f1.container.getBoundingClientRect();
+       const r2 = f2.container.getBoundingClientRect();
+       const rot1 = parseInt(f1.elemento.dataset.rotacion) || 0;
+       const rot2 = parseInt(f2.elemento.dataset.rotacion) || 0;
+       const p1 = getLadosCentros(r1, rot1);
+       const p2 = getLadosCentros(r2, rot2);
+       
+       // Encontrar qué puntos están cerca
+       let start, end;
+       if (Math.hypot(p1.izq.x - p2.izq.x, p1.izq.y - p2.izq.y) < 10) { start = p1.izq; end = p2.izq; marcar(f1, 'a'); marcar(f2, 'a'); }
+       else if (Math.hypot(p1.izq.x - p2.der.x, p1.izq.y - p2.der.y) < 10) { start = p1.izq; end = p2.der; marcar(f1, 'a'); marcar(f2, 'b'); }
+       else if (Math.hypot(p1.der.x - p2.izq.x, p1.der.y - p2.izq.y) < 10) { start = p1.der; end = p2.izq; marcar(f1, 'b'); marcar(f2, 'a'); }
+       else if (Math.hypot(p1.der.x - p2.der.x, p1.der.y - p2.der.y) < 10) { start = p1.der; end = p2.der; marcar(f1, 'b'); marcar(f2, 'b'); }
 
-      rotacion = ((rotacion % 360) + 360) % 360;
-
-      if (rotacion === 0) {
-        return { izq: { x: cx - w, y: cy }, der: { x: cx + w, y: cy } };
-      } else if (rotacion === 90 || rotacion === -270) {
-        return { izq: { x: cx, y: cy + w }, der: { x: cx, y: cy - w } };
-      } else if (rotacion === 180 || rotacion === -180) {
-        return { izq: { x: cx + w, y: cy }, der: { x: cx - w, y: cy } };
-      } else if (rotacion === 270 || rotacion === -90) {
-        return { izq: { x: cx, y: cy - w }, der: { x: cx, y: cy + w } };
-      }
-
-      return { izq: { x: cx - w, y: cy }, der: { x: cx + w, y: cy } };
+       if (start && end) {
+         const tRect = tablero.getBoundingClientRect();
+         const linea = document.createElement('div');
+         linea.className = 'conexion';
+         linea.style.width = '20px'; // Linea corta visual
+         linea.style.left = (start.x - tRect.left - 10) + 'px';
+         linea.style.top = (start.y - tRect.top - 2) + 'px';
+         tablero.appendChild(linea);
+       }
     }
 
-    // Marcar lados como conectados
-    function marcarLadosConectados(elem1, lado1, elem2, lado2) {
-      const selector1 = lado1 === 'izq' ? '.lado-a' : '.lado-b';
-      const selector2 = lado2 === 'izq' ? '.lado-a' : '.lado-b';
-      
-      elem1.querySelector(selector1).classList.add('match');
-      elem2.querySelector(selector2).classList.add('match');
+    function marcar(ficha, lado) {
+      ficha.elemento.querySelector(`.lado-${lado}`).classList.add('match');
     }
 
-    // Dibujar línea de conexión
-    function dibujarLinea(x1, y1, x2, y2, tableroRect) {
-      const linea = document.createElement('div');
-      linea.className = 'conexion';
-
-      const dx = x2 - x1;
-      const dy = y2 - y1;
-      const length = Math.sqrt(dx * dx + dy * dy);
-      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-
-      linea.style.width = `${length}px`;
-      linea.style.left = `${x1 - tableroRect.left}px`;
-      linea.style.top = `${y1 - tableroRect.top}px`;
-      linea.style.transform = `rotate(${angle}deg)`;
-
-      tablero.appendChild(linea);
-    }
-
-    // Iniciar juego
+    // --- GESTIÓN DEL JUEGO ---
     function iniciarJuego() {
       clearInterval(estado.temporizador);
       estado = {
@@ -833,20 +764,15 @@
         tiempoRestante: config.tiempoTotal,
         temporizador: null,
         fichasEnTablero: [],
-        lineasConexion: [],
         gruposConectados: []
       };
 
       tablero.innerHTML = '';
-      mano.innerHTML = '<h3 style="margin-bottom: 10px;">Tu Mano</h3><p style="font-size: 0.9rem; color: #64748b;">Arrastra al tablero →</p>';
+      mano.innerHTML = '<h3 style="margin-bottom: 10px;">Tu Mano</h3>';
 
       const fichas = generarFichas();
-      fichas.forEach((f, i) => {
+      fichas.forEach(f => {
         const elem = crearFicha(f);
-        elem.style.position = 'relative';
-        elem.style.top = 'auto';
-        elem.style.left = 'auto';
-        elem.style.marginBottom = '50px';
         mano.appendChild(elem);
       });
 
@@ -856,51 +782,28 @@
         document.getElementById('tiempo').textContent = estado.tiempoRestante;
         if (estado.tiempoRestante <= 0) {
           clearInterval(estado.temporizador);
-          mostrarMensaje(`⏰ Tiempo agotado. Puntuación final: ${estado.puntuacion}`);
+          mostrarMensaje(`⏰ Tiempo agotado. Pts: ${estado.puntuacion}`);
         }
       }, 1000);
     }
 
-    // Actualizar UI
     function actualizarUI() {
       document.getElementById('puntuacion').textContent = estado.puntuacion;
       document.getElementById('conexiones').textContent = estado.conexiones;
       document.getElementById('tiempo').textContent = estado.tiempoRestante;
     }
 
-    // Mostrar mensaje
     function mostrarMensaje(texto, esVictoria = false) {
       const msg = document.getElementById('message');
       msg.textContent = texto;
       msg.style.display = 'block';
-      msg.style.borderColor = esVictoria ? '#10b981' : '#0ea5e9';
-
-      setTimeout(() => {
-        msg.style.display = 'none';
-      }, 3000);
+      msg.style.borderColor = esVictoria ? '#10b981' : '#ef4444';
+      setTimeout(() => { msg.style.display = 'none'; }, 2000);
     }
 
-    // Voltear todas
-    function voltearTodas() {
-      document.querySelectorAll('.ficha').forEach(f => {
-        let rot = (parseInt(f.dataset.rotacion) || 0) + 180;
-        f.dataset.rotacion = rot;
-        f.style.transform = `rotate(${rot}deg)`;
-      });
-      setTimeout(verificarConexiones, 200);
-    }
-
-    // Dar pista
-    function darPista() {
-      mostrarMensaje("💡 Busca fichas con lados que tengan el mismo valor numérico y acércalas");
-    }
-
-    // Event listeners
     document.getElementById('btn-nueva-partida').onclick = iniciarJuego;
-    document.getElementById('btn-voltear-todas').onclick = voltearTodas;
-    document.getElementById('btn-pista').onclick = darPista;
+    document.getElementById('btn-pista').onclick = () => mostrarMensaje("💡 Une lados con el mismo valor (ej: 2² con 4)");
 
-    // Iniciar al cargar
     window.onload = iniciarJuego;
   </script>
 </body>
