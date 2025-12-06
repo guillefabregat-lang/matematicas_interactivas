@@ -37,7 +37,6 @@
       background: linear-gradient(135deg, #0ea5e9, #8b5cf6);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: none;
     }
 
     .subtitle {
@@ -48,7 +47,7 @@
 
     .game-info {
       display: flex;
-      justify-content: space-between;
+      justify-content: space-around;
       margin-bottom: 20px;
       background: rgba(255, 255, 255, 0.7);
       padding: 15px;
@@ -86,8 +85,8 @@
     }
 
     #mano {
-      width: 250px;
-      min-height: 400px;
+      width: 280px;
+      min-height: 500px;
       background: rgba(255, 255, 255, 0.8);
       border-radius: 15px;
       padding: 15px;
@@ -95,29 +94,30 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 10px;
     }
 
     #tablero {
       flex: 1;
-      min-height: 400px;
+      min-height: 500px;
       background: rgba(255, 255, 255, 0.5);
       border: 2px dashed #cbd5e1;
       border-radius: 15px;
       position: relative;
-      overflow: hidden;
+      overflow: visible;
     }
 
     .ficha {
-      width: 120px;
-      height: 60px;
+      width: 140px;
+      height: 70px;
       background: white;
-      border: 2px solid #0ea5e9;
-      border-radius: 8px;
+      border: 3px solid #0ea5e9;
+      border-radius: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px;
-      cursor: grab;
+      padding: 10px;
+      cursor: move;
       position: absolute;
       transition: transform 0.2s, box-shadow 0.2s;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -125,36 +125,45 @@
     }
 
     .ficha:hover {
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
       transform: scale(1.05);
-    }
-
-    .ficha.conectada {
-      border-color: #10b981;
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
     }
 
     .lado {
       width: 45%;
       text-align: center;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: bold;
       color: #1e293b;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 5px;
+      border-radius: 5px;
+      background: rgba(14, 165, 233, 0.05);
+    }
+
+    .lado.match {
+      background: rgba(16, 185, 129, 0.2);
+      border: 2px solid #10b981;
+      animation: pulse 1s ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
     }
 
     .separador {
-      width: 2px;
+      width: 3px;
       height: 80%;
       background: #0ea5e9;
-      border-radius: 1px;
+      border-radius: 2px;
     }
 
     .botones {
       position: absolute;
-      bottom: -35px;
+      bottom: -38px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -162,24 +171,26 @@
     }
 
     .botones button {
-      padding: 4px 8px;
-      font-size: 12px;
-      background: #0ea5e9;
+      padding: 6px 12px;
+      font-size: 14px;
+      background: #8b5cf6;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
       transition: background 0.2s;
     }
 
     .botones button:hover {
-      background: #0284c7;
+      background: #7c3aed;
     }
 
     .controls {
       display: flex;
       gap: 15px;
       margin-top: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
     button {
@@ -200,183 +211,150 @@
       box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
     }
 
-    button:active {
-      transform: translateY(0);
-    }
-
     .message {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.98);
       color: #1e293b;
-      padding: 20px 40px;
-      border-radius: 10px;
+      padding: 30px 50px;
+      border-radius: 15px;
       font-size: 1.5rem;
-      z-index: 100;
+      z-index: 1000;
       display: none;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-      border: 2px solid #0ea5e9;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      border: 3px solid #0ea5e9;
     }
 
     .conexion {
       position: absolute;
-      height: 4px;
-      background: #10b981;
+      height: 5px;
+      background: linear-gradient(90deg, #10b981, #34d399);
       z-index: 5;
       transform-origin: 0 0;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.5);
+      border-radius: 3px;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Dominó de Potencias</h1>
-      <p class="subtitle">Conecta las expresiones equivalentes para ganar puntos</p>
+      <h1>🎲 Dominó de Potencias</h1>
+      <p class="subtitle">Conecta los lados con valores equivalentes</p>
     </header>
 
     <div class="game-info">
       <div class="info-item">
         <div class="info-value" id="puntuacion">0</div>
-        <div class="info-label">Puntuación</div>
+        <div class="info-label">Puntos</div>
       </div>
       <div class="info-item">
-        <div class="info-value" id="fichas-conectadas">0</div>
-        <div class="info-label">Fichas Conectadas</div>
+        <div class="info-value" id="conexiones">0</div>
+        <div class="info-label">Conexiones</div>
       </div>
       <div class="info-item">
-        <div class="info-value" id="tiempo">120</div>
-        <div class="info-label">Tiempo Restante</div>
+        <div class="info-value" id="tiempo">180</div>
+        <div class="info-label">Segundos</div>
       </div>
     </div>
 
     <div class="game-area">
       <div id="mano">
-        <h3>Tu Mano</h3>
-        <p>Arrastra las fichas al tablero</p>
+        <h3 style="margin-bottom: 10px;">Tu Mano</h3>
+        <p style="font-size: 0.9rem; color: #64748b;">Arrastra al tablero →</p>
       </div>
       <div id="tablero"></div>
     </div>
 
     <div class="controls">
-      <button id="btn-repartir">Repartir Fichas</button>
-      <button id="btn-reiniciar">Reiniciar Juego</button>
-      <button id="btn-voltear-todas">Voltear Todas</button>
+      <button id="btn-nueva-partida">🎮 Nueva Partida</button>
+      <button id="btn-voltear-todas">🔄 Voltear Todas</button>
+      <button id="btn-pista">💡 Pista</button>
     </div>
   </div>
 
   <div class="message" id="message"></div>
 
   <script>
-    // Configuración del juego
+    // Configuración
     const config = {
-      tiempoTotal: 120, // segundos
-      puntosPorConexion: 10,
-      puntosExtraPorCadena: 5
+      tiempoTotal: 180,
+      puntosPorConexion: 15,
+      distanciaConexion: 80
     };
 
     // Estado del juego
     let estado = {
       puntuacion: 0,
-      fichasConectadas: 0,
+      conexiones: 0,
       tiempoRestante: config.tiempoTotal,
       temporizador: null,
       fichasEnTablero: [],
-      conexiones: [],
-      fichaActiva: null
+      lineasConexion: []
     };
 
-    // Expresiones para las fichas
+    // Banco de expresiones con sus valores
     const expresiones = [
-      // Formato: [expresión1, expresión2, valor numérico]
-      ["2^2", "4", 4],
-      ["2^3", "8", 8],
-      ["2^4", "16", 16],
-      ["2^5", "32", 32],
-      ["3^2", "9", 9],
-      ["3^3", "27", 27],
-      ["4^2", "16", 16],
-      ["4^3", "64", 64],
-      ["5^2", "25", 25],
-      ["5^3", "125", 125],
-      ["10^2", "100", 100],
-      ["10^3", "1000", 1000],
-      ["2^2 * 2^3", "32", 32],
-      ["3^2 * 2^2", "36", 36],
-      ["2^4 / 2^2", "4", 4],
-      ["3^3 / 3", "9", 9],
-      ["√16", "4", 4],
-      ["√81", "9", 9],
-      ["2^0", "1", 1],
-      ["5^0", "1", 1]
+      { expr: "2²", valor: 4 },
+      { expr: "4", valor: 4 },
+      { expr: "2³", valor: 8 },
+      { expr: "8", valor: 8 },
+      { expr: "2⁴", valor: 16 },
+      { expr: "16", valor: 16 },
+      { expr: "4²", valor: 16 },
+      { expr: "2⁵", valor: 32 },
+      { expr: "32", valor: 32 },
+      { expr: "3²", valor: 9 },
+      { expr: "9", valor: 9 },
+      { expr: "3³", valor: 27 },
+      { expr: "27", valor: 27 },
+      { expr: "5²", valor: 25 },
+      { expr: "25", valor: 25 },
+      { expr: "5³", valor: 125 },
+      { expr: "125", valor: 125 },
+      { expr: "10²", valor: 100 },
+      { expr: "100", valor: 100 },
+      { expr: "6²", valor: 36 },
+      { expr: "36", valor: 36 },
+      { expr: "√16", valor: 4 },
+      { expr: "√64", valor: 8 },
+      { expr: "√81", valor: 9 },
+      { expr: "2²×2", valor: 8 },
+      { expr: "3×3", valor: 9 }
     ];
 
     // Elementos DOM
     const tablero = document.getElementById('tablero');
     const mano = document.getElementById('mano');
-    const puntuacionElement = document.getElementById('puntuacion');
-    const fichasConectadasElement = document.getElementById('fichas-conectadas');
-    const tiempoElement = document.getElementById('tiempo');
-    const messageElement = document.getElementById('message');
 
-    // Inicialización del juego
-    function inicializarJuego() {
-      clearInterval(estado.temporizador);
-      estado = {
-        puntuacion: 0,
-        fichasConectadas: 0,
-        tiempoRestante: config.tiempoTotal,
-        temporizador: null,
-        fichasEnTablero: [],
-        conexiones: [],
-        fichaActiva: null
-      };
+    // Crear fichas de dominó (con DOS VALORES DIFERENTES)
+    function generarFichas() {
+      const fichas = [];
+      const expUsadas = new Set();
       
-      actualizarUI();
-      repartirFichas();
-      iniciarTemporizador();
-    }
-
-    // Repartir fichas iniciales
-    function repartirFichas() {
-      // Limpiar mano y tablero
-      mano.innerHTML = '<h3>Tu Mano</h3><p>Arrastra las fichas al tablero</p>';
-      tablero.innerHTML = '';
-      estado.fichasEnTablero = [];
-      estado.conexiones = [];
-      
-      // Crear 8 fichas aleatorias
-      const fichasAleatorias = [];
-      const indicesUsados = new Set();
-      
-      while (fichasAleatorias.length < 8 && indicesUsados.size < expresiones.length) {
-        const indice = Math.floor(Math.random() * expresiones.length);
-        if (!indicesUsados.has(indice)) {
-          indicesUsados.add(indice);
-          const [a, b, valor] = expresiones[indice];
-          
-          // Decidir aleatoriamente si voltear la ficha
-          const volteada = Math.random() > 0.5;
-          fichasAleatorias.push({
-            id: fichasAleatorias.length + 1,
-            a: volteada ? b : a,
-            b: volteada ? a : b,
-            valor: valor,
-            rotacion: 0
-          });
-        }
+      // Crear 10 fichas con valores diferentes en cada lado
+      for (let i = 0; i < 10; i++) {
+        let exp1, exp2;
+        
+        // Buscar dos expresiones con valores DIFERENTES
+        do {
+          exp1 = expresiones[Math.floor(Math.random() * expresiones.length)];
+          exp2 = expresiones[Math.floor(Math.random() * expresiones.length)];
+        } while (exp1.valor === exp2.valor || expUsadas.has(exp1.expr + exp2.expr));
+        
+        expUsadas.add(exp1.expr + exp2.expr);
+        
+        fichas.push({
+          id: i + 1,
+          ladoA: { expr: exp1.expr, valor: exp1.valor },
+          ladoB: { expr: exp2.expr, valor: exp2.valor },
+          rotacion: 0
+        });
       }
       
-      // Colocar fichas en la mano
-      fichasAleatorias.forEach((ficha, index) => {
-        const fichaElement = crearFicha(ficha);
-        fichaElement.style.position = 'relative';
-        fichaElement.style.top = 'auto';
-        fichaElement.style.left = 'auto';
-        fichaElement.style.margin = '10px 0';
-        mano.appendChild(fichaElement);
-      });
+      return fichas;
     }
 
     // Crear elemento ficha
@@ -384,241 +362,266 @@
       const div = document.createElement("div");
       div.className = "ficha";
       div.dataset.id = f.id;
-      div.dataset.valor = f.valor;
+      div.dataset.valorA = f.ladoA.valor;
+      div.dataset.valorB = f.ladoB.valor;
       div.dataset.rotacion = f.rotacion || 0;
 
       div.innerHTML = `
-        <div class="lado">${f.a}</div>
+        <div class="lado lado-a" data-valor="${f.ladoA.valor}">${f.ladoA.expr}</div>
         <div class="separador"></div>
-        <div class="lado">${f.b}</div>
+        <div class="lado lado-b" data-valor="${f.ladoB.valor}">${f.ladoB.expr}</div>
         <div class="botones">
-          <button class="rotarL">↺</button>
-          <button class="rotarR">↻</button>
+          <button class="rotarL" onclick="event.stopPropagation(); rotarFicha(${f.id}, -90)">↺ 90°</button>
+          <button class="rotarR" onclick="event.stopPropagation(); rotarFicha(${f.id}, 90)">↻ 90°</button>
         </div>
       `;
-
-      // Rotación
-      div.querySelector(".rotarL").onclick = (e) => {
-        e.stopPropagation();
-        let rot = parseInt(div.dataset.rotacion) - 90;
-        div.dataset.rotacion = rot;
-        div.style.transform = `rotate(${rot}deg)`;
-        verificarConexionesCercanas(div);
-      };
-
-      div.querySelector(".rotarR").onclick = (e) => {
-        e.stopPropagation();
-        let rot = parseInt(div.dataset.rotacion) + 90;
-        div.dataset.rotacion = rot;
-        div.style.transform = `rotate(${rot}deg)`;
-        verificarConexionesCercanas(div);
-      };
 
       activarArrastre(div);
       return div;
     }
 
-    // Activar arrastre de fichas - CORREGIDO
+    // Activar arrastre
     function activarArrastre(elem) {
-      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-      
-      elem.onmousedown = dragMouseDown;
+      let startX, startY, initialX, initialY;
 
-      function dragMouseDown(e) {
-        e = e || window.event;
+      elem.addEventListener('mousedown', iniciarArrastre);
+
+      function iniciarArrastre(e) {
         e.preventDefault();
-        // Obtener la posición inicial del cursor
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
+        startX = e.clientX;
+        startY = e.clientY;
+        
+        const rect = elem.getBoundingClientRect();
+        const tableroRect = tablero.getBoundingClientRect();
+        initialX = rect.left - tableroRect.left;
+        initialY = rect.top - tableroRect.top;
+
         elem.style.zIndex = "1000";
-        estado.fichaActiva = elem;
+        document.addEventListener('mousemove', arrastrar);
+        document.addEventListener('mouseup', soltarFicha);
       }
 
-      function elementDrag(e) {
-        e = e || window.event;
+      function arrastrar(e) {
         e.preventDefault();
-        // Calcular la nueva posición
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        // Establecer la nueva posición
-        elem.style.top = (elem.offsetTop - pos2) + "px";
-        elem.style.left = (elem.offsetLeft - pos1) + "px";
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        elem.style.left = (initialX + dx) + "px";
+        elem.style.top = (initialY + dy) + "px";
       }
 
-      function closeDragElement() {
-        // Detener el movimiento
-        document.onmouseup = null;
-        document.onmousemove = null;
+      function soltarFicha(e) {
+        document.removeEventListener('mousemove', arrastrar);
+        document.removeEventListener('mouseup', soltarFicha);
         elem.style.zIndex = "10";
-        
-        // Verificar si la ficha se soltó en el tablero
-        const rect = tablero.getBoundingClientRect();
-        const fichaRect = elem.getBoundingClientRect();
-        
-        if (
-          fichaRect.left >= rect.left && 
-          fichaRect.right <= rect.right &&
-          fichaRect.top >= rect.top && 
-          fichaRect.bottom <= rect.bottom
-        ) {
-          // Verificar si la ficha ya está en el tablero
-          if (!estado.fichasEnTablero.some(f => f.id == elem.dataset.id)) {
-            estado.fichasEnTablero.push({
-              id: parseInt(elem.dataset.id),
-              elemento: elem,
-              valor: parseInt(elem.dataset.valor),
-              x: parseInt(elem.style.left),
-              y: parseInt(elem.style.top),
-              rotacion: parseInt(elem.dataset.rotacion)
-            });
-          }
-          
-          verificarConexionesCercanas(elem);
+
+        // Añadir a tablero si no está ya
+        const fichaId = parseInt(elem.dataset.id);
+        if (!estado.fichasEnTablero.find(f => f.id === fichaId)) {
+          estado.fichasEnTablero.push({
+            id: fichaId,
+            elemento: elem,
+            valorA: parseInt(elem.dataset.valorA),
+            valorB: parseInt(elem.dataset.valorB)
+          });
         }
-        
-        estado.fichaActiva = null;
+
+        verificarConexiones();
       }
     }
 
-    // Verificar conexiones cercanas
-    function verificarConexionesCercanas(fichaElement) {
-      const fichaId = parseInt(fichaElement.dataset.id);
-      const fichaValor = parseInt(fichaElement.dataset.valor);
-      const fichaX = parseInt(fichaElement.style.left);
-      const fichaY = parseInt(fichaElement.style.top);
+    // Rotar ficha
+    function rotarFicha(fichaId, grados) {
+      const ficha = document.querySelector(`[data-id="${fichaId}"]`);
+      if (!ficha) return;
       
-      // Buscar fichas cercanas con el mismo valor
-      estado.fichasEnTablero.forEach(otraFicha => {
-        if (otraFicha.id !== fichaId && otraFicha.valor === fichaValor) {
-          const otraX = otraFicha.x;
-          const otraY = otraFicha.y;
-          
-          // Calcular distancia
-          const distancia = Math.sqrt(Math.pow(fichaX - otraX, 2) + Math.pow(fichaY - otraY, 2));
-          
-          if (distancia < 150) { // Umbral de conexión
-            conectarFichas(fichaElement, otraFicha.elemento);
-          }
-        }
-      });
+      let rotActual = parseInt(ficha.dataset.rotacion) || 0;
+      rotActual += grados;
+      ficha.dataset.rotacion = rotActual;
+      ficha.style.transform = `rotate(${rotActual}deg)`;
+      
+      setTimeout(() => verificarConexiones(), 100);
     }
 
-    // Conectar dos fichas
-    function conectarFichas(ficha1, ficha2) {
-      const id1 = parseInt(ficha1.dataset.id);
-      const id2 = parseInt(ficha2.dataset.id);
+    // Verificar conexiones entre fichas
+    function verificarConexiones() {
+      // Limpiar conexiones visuales previas
+      document.querySelectorAll('.conexion').forEach(c => c.remove());
+      document.querySelectorAll('.lado.match').forEach(l => l.classList.remove('match'));
       
-      // Verificar si ya están conectadas
-      if (estado.conexiones.some(c => 
-        (c.ficha1 === id1 && c.ficha2 === id2) || 
-        (c.ficha1 === id2 && c.ficha2 === id1)
-      )) {
-        return;
-      }
-      
-      // Marcar como conectadas visualmente
-      ficha1.classList.add('conectada');
-      ficha2.classList.add('conectada');
-      
-      // Agregar conexión al estado
-      estado.conexiones.push({
-        ficha1: id1,
-        ficha2: id2
+      let conexionesEncontradas = 0;
+
+      estado.fichasEnTablero.forEach((ficha1, idx1) => {
+        estado.fichasEnTablero.forEach((ficha2, idx2) => {
+          if (idx1 >= idx2) return;
+
+          const rect1 = ficha1.elemento.getBoundingClientRect();
+          const rect2 = ficha2.elemento.getBoundingClientRect();
+          const tableroRect = tablero.getBoundingClientRect();
+
+          // Obtener centros de cada lado
+          const ladosA1 = getLadosCentros(rect1, parseInt(ficha1.elemento.dataset.rotacion) || 0);
+          const ladosA2 = getLadosCentros(rect2, parseInt(ficha2.elemento.dataset.rotacion) || 0);
+
+          // Verificar si algún lado de ficha1 está cerca de algún lado de ficha2 CON EL MISMO VALOR
+          [
+            { lado1: 'izq', valor1: ficha1.valorA, lado2: 'izq', valor2: ficha2.valorA },
+            { lado1: 'izq', valor1: ficha1.valorA, lado2: 'der', valor2: ficha2.valorB },
+            { lado1: 'der', valor1: ficha1.valorB, lado2: 'izq', valor2: ficha2.valorA },
+            { lado1: 'der', valor1: ficha1.valorB, lado2: 'der', valor2: ficha2.valorB }
+          ].forEach(combo => {
+            if (combo.valor1 === combo.valor2) {
+              const p1 = ladosA1[combo.lado1];
+              const p2 = ladosA2[combo.lado2];
+              const dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+
+              if (dist < config.distanciaConexion) {
+                dibujarLinea(p1.x, p1.y, p2.x, p2.y, tableroRect);
+                marcarLadosConectados(ficha1.elemento, combo.lado1, ficha2.elemento, combo.lado2);
+                conexionesEncontradas++;
+              }
+            }
+          });
+        });
       });
-      
-      // Dibujar línea de conexión
-      dibujarConexion(ficha1, ficha2);
-      
-      // Actualizar puntuación
-      estado.puntuacion += config.puntosPorConexion;
-      estado.fichasConectadas += 2;
-      
-      // Verificar si se completó el juego
-      if (estado.fichasConectadas >= 8) {
-        mostrarMensaje("¡Felicidades! Has conectado todas las fichas", true);
+
+      if (conexionesEncontradas !== estado.conexiones) {
+        estado.conexiones = conexionesEncontradas;
+        estado.puntuacion = conexionesEncontradas * config.puntosPorConexion;
+        actualizarUI();
+
+        if (conexionesEncontradas >= 9) {
+          mostrarMensaje("🎉 ¡Felicidades! Has conectado todas las fichas", true);
+          clearInterval(estado.temporizador);
+        }
       }
+    }
+
+    // Obtener centros de los lados de una ficha según rotación
+    function getLadosCentros(rect, rotacion) {
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const w = rect.width / 2;
+
+      rotacion = ((rotacion % 360) + 360) % 360;
+
+      if (rotacion === 0) {
+        return { izq: { x: cx - w, y: cy }, der: { x: cx + w, y: cy } };
+      } else if (rotacion === 90 || rotacion === -270) {
+        return { izq: { x: cx, y: cy + w }, der: { x: cx, y: cy - w } };
+      } else if (rotacion === 180 || rotacion === -180) {
+        return { izq: { x: cx + w, y: cy }, der: { x: cx - w, y: cy } };
+      } else if (rotacion === 270 || rotacion === -90) {
+        return { izq: { x: cx, y: cy - w }, der: { x: cx, y: cy + w } };
+      }
+
+      return { izq: { x: cx - w, y: cy }, der: { x: cx + w, y: cy } };
+    }
+
+    // Marcar lados como conectados
+    function marcarLadosConectados(elem1, lado1, elem2, lado2) {
+      const selector1 = lado1 === 'izq' ? '.lado-a' : '.lado-b';
+      const selector2 = lado2 === 'izq' ? '.lado-a' : '.lado-b';
       
+      elem1.querySelector(selector1).classList.add('match');
+      elem2.querySelector(selector2).classList.add('match');
+    }
+
+    // Dibujar línea de conexión
+    function dibujarLinea(x1, y1, x2, y2, tableroRect) {
+      const linea = document.createElement('div');
+      linea.className = 'conexion';
+
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const length = Math.sqrt(dx * dx + dy * dy);
+      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+      linea.style.width = `${length}px`;
+      linea.style.left = `${x1 - tableroRect.left}px`;
+      linea.style.top = `${y1 - tableroRect.top}px`;
+      linea.style.transform = `rotate(${angle}deg)`;
+
+      tablero.appendChild(linea);
+    }
+
+    // Iniciar juego
+    function iniciarJuego() {
+      clearInterval(estado.temporizador);
+      estado = {
+        puntuacion: 0,
+        conexiones: 0,
+        tiempoRestante: config.tiempoTotal,
+        temporizador: null,
+        fichasEnTablero: [],
+        lineasConexion: []
+      };
+
+      tablero.innerHTML = '';
+      mano.innerHTML = '<h3 style="margin-bottom: 10px;">Tu Mano</h3><p style="font-size: 0.9rem; color: #64748b;">Arrastra al tablero →</p>';
+
+      const fichas = generarFichas();
+      fichas.forEach((f, i) => {
+        const elem = crearFicha(f);
+        elem.style.position = 'relative';
+        elem.style.top = 'auto';
+        elem.style.left = 'auto';
+        elem.style.marginBottom = '50px';
+        mano.appendChild(elem);
+      });
+
       actualizarUI();
-    }
-
-    // Dibujar línea de conexión entre fichas
-    function dibujarConexion(ficha1, ficha2) {
-      const rect1 = ficha1.getBoundingClientRect();
-      const rect2 = ficha2.getBoundingClientRect();
-      const tableroRect = tablero.getBoundingClientRect();
-      
-      const x1 = rect1.left + rect1.width/2 - tableroRect.left;
-      const y1 = rect1.top + rect1.height/2 - tableroRect.top;
-      const x2 = rect2.left + rect2.width/2 - tableroRect.left;
-      const y2 = rect2.top + rect2.height/2 - tableroRect.top;
-      
-      const conexion = document.createElement('div');
-      conexion.className = 'conexion';
-      
-      const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-      const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-      
-      conexion.style.width = `${length}px`;
-      conexion.style.left = `${x1}px`;
-      conexion.style.top = `${y1}px`;
-      conexion.style.transform = `rotate(${angle}deg)`;
-      
-      tablero.appendChild(conexion);
-    }
-
-    // Voltear todas las fichas
-    function voltearTodasLasFichas() {
-      const fichas = document.querySelectorAll('.ficha');
-      fichas.forEach(ficha => {
-        let rot = parseInt(ficha.dataset.rotacion) + 180;
-        ficha.dataset.rotacion = rot;
-        ficha.style.transform = `rotate(${rot}deg)`;
-      });
-    }
-
-    // Mostrar mensaje
-    function mostrarMensaje(texto, esVictoria = false) {
-      messageElement.textContent = texto;
-      messageElement.style.display = 'block';
-      messageElement.style.background = esVictoria ? 
-        'rgba(16, 185, 129, 0.9)' : 'rgba(255, 255, 255, 0.95)';
-      
-      setTimeout(() => {
-        messageElement.style.display = 'none';
-      }, 3000);
-    }
-
-    // Iniciar temporizador
-    function iniciarTemporizador() {
       estado.temporizador = setInterval(() => {
         estado.tiempoRestante--;
-        tiempoElement.textContent = estado.tiempoRestante;
-        
+        document.getElementById('tiempo').textContent = estado.tiempoRestante;
         if (estado.tiempoRestante <= 0) {
           clearInterval(estado.temporizador);
-          mostrarMensaje("¡Tiempo agotado! Tu puntuación: " + estado.puntuacion);
+          mostrarMensaje(`⏰ Tiempo agotado. Puntuación final: ${estado.puntuacion}`);
         }
       }, 1000);
     }
 
     // Actualizar UI
     function actualizarUI() {
-      puntuacionElement.textContent = estado.puntuacion;
-      fichasConectadasElement.textContent = estado.fichasConectadas;
-      tiempoElement.textContent = estado.tiempoRestante;
+      document.getElementById('puntuacion').textContent = estado.puntuacion;
+      document.getElementById('conexiones').textContent = estado.conexiones;
+      document.getElementById('tiempo').textContent = estado.tiempoRestante;
     }
 
-    // Event listeners para botones
-    document.getElementById('btn-repartir').onclick = repartirFichas;
-    document.getElementById('btn-reiniciar').onclick = inicializarJuego;
-    document.getElementById('btn-voltear-todas').onclick = voltearTodasLasFichas;
+    // Mostrar mensaje
+    function mostrarMensaje(texto, esVictoria = false) {
+      const msg = document.getElementById('message');
+      msg.textContent = texto;
+      msg.style.display = 'block';
+      msg.style.borderColor = esVictoria ? '#10b981' : '#0ea5e9';
 
-    // Inicializar el juego al cargar
-    window.onload = inicializarJuego;
+      setTimeout(() => {
+        msg.style.display = 'none';
+      }, 3000);
+    }
+
+    // Voltear todas
+    function voltearTodas() {
+      document.querySelectorAll('.ficha').forEach(f => {
+        let rot = (parseInt(f.dataset.rotacion) || 0) + 180;
+        f.dataset.rotacion = rot;
+        f.style.transform = `rotate(${rot}deg)`;
+      });
+      setTimeout(verificarConexiones, 200);
+    }
+
+    // Dar pista
+    function darPista() {
+      mostrarMensaje("💡 Busca fichas con lados que tengan el mismo valor numérico y acércalas");
+    }
+
+    // Event listeners
+    document.getElementById('btn-nueva-partida').onclick = iniciarJuego;
+    document.getElementById('btn-voltear-todas').onclick = voltearTodas;
+    document.getElementById('btn-pista').onclick = darPista;
+
+    // Iniciar al cargar
+    window.onload = iniciarJuego;
   </script>
 </body>
 </html>
