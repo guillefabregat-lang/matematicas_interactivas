@@ -118,10 +118,16 @@
       align-items: center;
       padding: 10px;
       cursor: move;
-      position: absolute;
       transition: transform 0.2s, box-shadow 0.2s;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       z-index: 10;
+    }
+    
+    .ficha-container {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .ficha:hover {
@@ -141,6 +147,23 @@
       padding: 5px;
       border-radius: 5px;
       background: rgba(14, 165, 233, 0.05);
+      transform: rotate(0deg);
+      transition: none;
+    }
+    
+    .ficha[data-rotacion="90"] .lado,
+    .ficha[data-rotacion="-270"] .lado {
+      transform: rotate(-90deg);
+    }
+    
+    .ficha[data-rotacion="180"] .lado,
+    .ficha[data-rotacion="-180"] .lado {
+      transform: rotate(-180deg);
+    }
+    
+    .ficha[data-rotacion="270"] .lado,
+    .ficha[data-rotacion="-90"] .lado {
+      transform: rotate(-270deg);
     }
 
     .lado.match {
@@ -162,12 +185,19 @@
     }
 
     .botones {
-      position: absolute;
-      bottom: -38px;
-      left: 50%;
-      transform: translateX(-50%);
+      margin-top: 8px;
       display: flex;
       gap: 8px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 1001;
+    }
+
+    .ficha-container:hover .botones,
+    .botones:hover {
+      opacity: 1;
+      pointer-events: all;
     }
 
     .botones button {
@@ -179,6 +209,7 @@
       border-radius: 6px;
       cursor: pointer;
       transition: background 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 
     .botones button:hover {
@@ -282,7 +313,9 @@
     const config = {
       tiempoTotal: 180,
       puntosPorConexion: 15,
-      distanciaConexion: 80
+      distanciaConexion: 80,
+      distanciaEnganche: 100, // Distancia para activar enganche magnético
+      fuerzaEnganche: 15 // Píxeles de ajuste para enganche
     };
 
     // Estado del juego
@@ -292,7 +325,8 @@
       tiempoRestante: config.tiempoTotal,
       temporizador: null,
       fichasEnTablero: [],
-      lineasConexion: []
+      lineasConexion: [],
+      gruposConectados: [] // Grupos de fichas que se mueven juntas
     };
 
     // Banco de expresiones con sus valores
@@ -359,9 +393,14 @@
 
     // Crear elemento ficha
     function crearFicha(f) {
+      // Crear contenedor
+      const container = document.createElement("div");
+      container.className = "ficha-container";
+      container.dataset.id = f.id;
+      
+      // Crear ficha
       const div = document.createElement("div");
       div.className = "ficha";
-      div.dataset.id = f.id;
       div.dataset.valorA = f.ladoA.valor;
       div.dataset.valorB = f.ladoB.valor;
       div.dataset.rotacion = f.rotacion || 0;
@@ -370,75 +409,315 @@
         <div class="lado lado-a" data-valor="${f.ladoA.valor}">${f.ladoA.expr}</div>
         <div class="separador"></div>
         <div class="lado lado-b" data-valor="${f.ladoB.valor}">${f.ladoB.expr}</div>
-        <div class="botones">
-          <button class="rotarL" onclick="event.stopPropagation(); rotarFicha(${f.id}, -90)">↺ 90°</button>
-          <button class="rotarR" onclick="event.stopPropagation(); rotarFicha(${f.id}, 90)">↻ 90°</button>
-        </div>
       `;
+      
+      // Crear botones (fuera de la ficha, en el contenedor)
+      const botones = document.createElement("div");
+      botones.className = "botones";
+      botones.innerHTML = `
+        <button class="rotarL" onclick="event.stopPropagation(); rotarFicha(${f.id}, -90)">↺ 90°</button>
+        <button class="rotarR" onclick="event.stopPropagation(); rotarFicha(${f.id}, 90)">↻ 90°</button>
+      `;
+      
+      container.appendChild(div);
+      container.appendChild(botones);
 
-      activarArrastre(div);
-      return div;
+      activarArrastre(container, div);
+      return container;
     }
 
     // Activar arrastre
-    function activarArrastre(elem) {
-      let startX, startY, initialX, initialY;
+    function activarArrastre(container, fichaElem) {
+      let offsetX, offsetY;
+      let grupoArrastrado = [];
 
-      elem.addEventListener('mousedown', iniciarArrastre);
+      container.addEventListener('mousedown', iniciarArrastre);
 
       function iniciarArrastre(e) {
-        e.preventDefault();
-        startX = e.clientX;
-        startY = e.clientY;
+        // Si se hace clic en los botones de rotación, no arrastrar
+        if (e.target.tagName === 'BUTTON') return;
         
-        const rect = elem.getBoundingClientRect();
+        e.preventDefault();
+        
+        // Si la ficha está en la mano, moverla primero al tablero
+        if (container.parentElement === mano) {
+          // Colocar fichas en columna al bajarlas al tablero
+          const fichasEnMano = mano.querySelectorAll('.ficha-container').length;
+          const posicionX = 50 + (fichasEnMano * 160) % 600; // Distribuir en horizontal
+          const posicionY = 50 + Math.floor((fichasEnMano * 160) / 600) * 100; // Nueva fila cada 4 fichas
+          
+          tablero.appendChild(container);
+          container.style.position = 'absolute';
+          container.style.left = posicionX + 'px';
+          container.style.top = posicionY + 'px';
+        }
+        
+        const rect = container.getBoundingClientRect();
         const tableroRect = tablero.getBoundingClientRect();
-        initialX = rect.left - tableroRect.left;
-        initialY = rect.top - tableroRect.top;
+        
+        // Calcular el offset exacto desde donde se hizo clic hasta la esquina superior izquierda
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
 
-        elem.style.zIndex = "1000";
+        // Encontrar el grupo de fichas conectadas que se deben mover juntas
+        grupoArrastrado = obtenerGrupoConectado(parseInt(container.dataset.id));
+        
+        // Poner todas las fichas del grupo en z-index alto
+        grupoArrastrado.forEach(fichaData => {
+          fichaData.container.style.zIndex = "1000";
+          fichaData.container.style.cursor = "grabbing";
+          // Guardar posición inicial relativa
+          const fichaRect = fichaData.container.getBoundingClientRect();
+          fichaData.offsetX = fichaRect.left - rect.left;
+          fichaData.offsetY = fichaRect.top - rect.top;
+        });
+
         document.addEventListener('mousemove', arrastrar);
         document.addEventListener('mouseup', soltarFicha);
       }
 
       function arrastrar(e) {
         e.preventDefault();
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
+        
+        const tableroRect = tablero.getBoundingClientRect();
+        
+        // Posicionar todas las fichas del grupo manteniendo sus posiciones relativas
+        grupoArrastrado.forEach(fichaData => {
+          let x = e.clientX - tableroRect.left - offsetX + fichaData.offsetX;
+          let y = e.clientY - tableroRect.top - offsetY + fichaData.offsetY;
 
-        elem.style.left = (initialX + dx) + "px";
-        elem.style.top = (initialY + dy) + "px";
+          fichaData.container.style.left = x + "px";
+          fichaData.container.style.top = y + "px";
+        });
       }
 
       function soltarFicha(e) {
         document.removeEventListener('mousemove', arrastrar);
         document.removeEventListener('mouseup', soltarFicha);
-        elem.style.zIndex = "10";
+        
+        grupoArrastrado.forEach(fichaData => {
+          fichaData.container.style.zIndex = "10";
+          fichaData.container.style.cursor = "move";
+        });
 
         // Añadir a tablero si no está ya
-        const fichaId = parseInt(elem.dataset.id);
+        const fichaId = parseInt(container.dataset.id);
         if (!estado.fichasEnTablero.find(f => f.id === fichaId)) {
           estado.fichasEnTablero.push({
             id: fichaId,
-            elemento: elem,
-            valorA: parseInt(elem.dataset.valorA),
-            valorB: parseInt(elem.dataset.valorB)
+            container: container,
+            elemento: fichaElem,
+            valorA: parseInt(fichaElem.dataset.valorA),
+            valorB: parseInt(fichaElem.dataset.valorB)
           });
         }
 
+        // Aplicar enganche magnético
+        aplicarEngancheMagnetico(container, fichaElem);
+        
         verificarConexiones();
+      }
+    }
+    
+    // Obtener todas las fichas conectadas en un grupo
+    function obtenerGrupoConectado(fichaId) {
+      const fichaInicial = estado.fichasEnTablero.find(f => f.id === fichaId);
+      if (!fichaInicial) return [];
+      
+      const grupo = [fichaInicial];
+      const visitados = new Set([fichaId]);
+      const porVisitar = [fichaId];
+      
+      while (porVisitar.length > 0) {
+        const actualId = porVisitar.shift();
+        
+        // Buscar fichas conectadas a esta
+        estado.fichasEnTablero.forEach(otraFicha => {
+          if (visitados.has(otraFicha.id)) return;
+          
+          // Verificar si están conectadas
+          if (estanConectadas(actualId, otraFicha.id)) {
+            visitados.add(otraFicha.id);
+            porVisitar.push(otraFicha.id);
+            grupo.push(otraFicha);
+          }
+        });
+      }
+      
+      return grupo;
+    }
+    
+    // Verificar colisiones con otras fichas
+    function verificarColisiones(containerMoviendo, x, y, grupoMoviendo) {
+      const idsGrupo = new Set(grupoMoviendo.map(f => f.container.dataset.id));
+      const margen = 5; // Píxeles de separación mínima
+      
+      // Dimensiones aproximadas de la ficha (considerando rotación)
+      const anchoFicha = 140;
+      const altoFicha = 70;
+      
+      let xFinal = x;
+      let yFinal = y;
+      
+      // Verificar colisión con cada otra ficha
+      estado.fichasEnTablero.forEach(otraFicha => {
+        // No verificar colisión con fichas del mismo grupo
+        if (idsGrupo.has(otraFicha.container.dataset.id.toString())) return;
+        
+        const otroX = parseFloat(otraFicha.container.style.left) || 0;
+        const otroY = parseFloat(otraFicha.container.style.top) || 0;
+        
+        // Calcular si hay solapamiento en eje X
+        const solapamientoX = Math.abs(xFinal - otroX) < (anchoFicha + margen);
+        // Calcular si hay solapamiento en eje Y
+        const solapamientoY = Math.abs(yFinal - otroY) < (altoFicha + margen);
+        
+        if (solapamientoX && solapamientoY) {
+          // Hay colisión, ajustar posición
+          const dx = xFinal - otroX;
+          const dy = yFinal - otroY;
+          
+          // Empujar en la dirección con mayor separación
+          if (Math.abs(dx) > Math.abs(dy)) {
+            // Separar horizontalmente
+            xFinal = otroX + (dx > 0 ? anchoFicha + margen : -(anchoFicha + margen));
+          } else {
+            // Separar verticalmente
+            yFinal = otroY + (dy > 0 ? altoFicha + margen : -(altoFicha + margen));
+          }
+        }
+      });
+      
+      return { x: xFinal, y: yFinal };
+    }
+    function estanConectadas(fichaId1, fichaId2) {
+      const ficha1 = estado.fichasEnTablero.find(f => f.id === fichaId1);
+      const ficha2 = estado.fichasEnTablero.find(f => f.id === fichaId2);
+      
+      if (!ficha1 || !ficha2) return false;
+      
+      const rect1 = ficha1.elemento.getBoundingClientRect();
+      const rect2 = ficha2.elemento.getBoundingClientRect();
+      
+      const ladosA1 = getLadosCentros(rect1, parseInt(ficha1.elemento.dataset.rotacion) || 0);
+      const ladosA2 = getLadosCentros(rect2, parseInt(ficha2.elemento.dataset.rotacion) || 0);
+      
+      // Verificar todas las combinaciones de lados
+      const combinaciones = [
+        { lado1: 'izq', valor1: ficha1.valorA, lado2: 'izq', valor2: ficha2.valorA },
+        { lado1: 'izq', valor1: ficha1.valorA, lado2: 'der', valor2: ficha2.valorB },
+        { lado1: 'der', valor1: ficha1.valorB, lado2: 'izq', valor2: ficha2.valorA },
+        { lado1: 'der', valor1: ficha1.valorB, lado2: 'der', valor2: ficha2.valorB }
+      ];
+      
+      for (const combo of combinaciones) {
+        if (combo.valor1 === combo.valor2) {
+          const p1 = ladosA1[combo.lado1];
+          const p2 = ladosA2[combo.lado2];
+          const dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+          
+          if (dist < config.distanciaConexion) {
+            return true;
+          }
+        }
+      }
+      
+      return false;
+    }
+    
+    // Aplicar enganche magnético a fichas cercanas
+    function aplicarEngancheMagnetico(fichaContainerArrastrado, fichaElemArrastrado) {
+      const fichaId = parseInt(fichaContainerArrastrado.dataset.id);
+      const fichaData = estado.fichasEnTablero.find(f => f.id === fichaId);
+      if (!fichaData) return;
+      
+      const rect1 = fichaElemArrastrado.getBoundingClientRect();
+      const rotacion1 = parseInt(fichaElemArrastrado.dataset.rotacion) || 0;
+      const ladosA1 = getLadosCentros(rect1, rotacion1);
+      const tableroRect = tablero.getBoundingClientRect();
+      
+      // Buscar la ficha más cercana con valor compatible
+      let mejorEnganche = null;
+      let menorDistancia = config.distanciaEnganche;
+      
+      estado.fichasEnTablero.forEach(otraFicha => {
+        if (otraFicha.id === fichaId) return;
+        
+        const rect2 = otraFicha.elemento.getBoundingClientRect();
+        const rotacion2 = parseInt(otraFicha.elemento.dataset.rotacion) || 0;
+        const ladosA2 = getLadosCentros(rect2, rotacion2);
+        
+        // Verificar todas las combinaciones de lados
+        const combinaciones = [
+          { lado1: 'izq', valor1: fichaData.valorA, lado2: 'der', valor2: otraFicha.valorB, p1: ladosA1.izq, p2: ladosA2.der },
+          { lado1: 'der', valor1: fichaData.valorB, lado2: 'izq', valor2: otraFicha.valorA, p1: ladosA1.der, p2: ladosA2.izq }
+        ];
+        
+        combinaciones.forEach(combo => {
+          if (combo.valor1 === combo.valor2) {
+            const dist = Math.sqrt(Math.pow(combo.p1.x - combo.p2.x, 2) + Math.pow(combo.p1.y - combo.p2.y, 2));
+            
+            if (dist < menorDistancia) {
+              menorDistancia = dist;
+              
+              // Calcular la distancia exacta entre bordes para que no se superpongan
+              let offsetEnganche = 140; // Ancho de la ficha
+              
+              // Si están en perpendicular (una a 90° de la otra), ajustar
+              const difRotacion = Math.abs(rotacion1 - rotacion2) % 180;
+              if (difRotacion === 90) {
+                offsetEnganche = 70; // Mitad del ancho cuando están perpendiculares
+              }
+              
+              // Calcular vector de dirección entre los dos puntos
+              const dx = combo.p2.x - combo.p1.x;
+              const dy = combo.p2.y - combo.p1.y;
+              const distActual = Math.sqrt(dx * dx + dy * dy);
+              
+              if (distActual > 0) {
+                // Normalizar y aplicar la distancia correcta
+                const factorNorm = offsetEnganche / distActual;
+                mejorEnganche = {
+                  ajusteX: dx * factorNorm,
+                  ajusteY: dy * factorNorm
+                };
+              }
+            }
+          }
+        });
+      });
+      
+      // Aplicar el enganche si se encontró uno
+      if (mejorEnganche) {
+        const left = parseFloat(fichaContainerArrastrado.style.left) || 0;
+        const top = parseFloat(fichaContainerArrastrado.style.top) || 0;
+        
+        fichaContainerArrastrado.style.left = (left + mejorEnganche.ajusteX) + "px";
+        fichaContainerArrastrado.style.top = (top + mejorEnganche.ajusteY) + "px";
       }
     }
 
     // Rotar ficha
     function rotarFicha(fichaId, grados) {
-      const ficha = document.querySelector(`[data-id="${fichaId}"]`);
+      const container = document.querySelector(`[data-id="${fichaId}"]`);
+      if (!container) return;
+      
+      const ficha = container.querySelector('.ficha');
       if (!ficha) return;
       
+      // Actualizar rotación
       let rotActual = parseInt(ficha.dataset.rotacion) || 0;
       rotActual += grados;
+      
+      // Normalizar a -270, -180, -90, 0, 90, 180, 270
+      while (rotActual > 180) rotActual -= 360;
+      while (rotActual < -180) rotActual += 360;
+      
       ficha.dataset.rotacion = rotActual;
+      
+      // Aplicar rotación a la ficha
       ficha.style.transform = `rotate(${rotActual}deg)`;
+      ficha.style.transformOrigin = 'center center';
       
       setTimeout(() => verificarConexiones(), 100);
     }
@@ -501,7 +780,7 @@
     function getLadosCentros(rect, rotacion) {
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
-      const w = rect.width / 2;
+      const w = 70; // Ancho de la ficha / 2
 
       rotacion = ((rotacion % 360) + 360) % 360;
 
@@ -554,7 +833,8 @@
         tiempoRestante: config.tiempoTotal,
         temporizador: null,
         fichasEnTablero: [],
-        lineasConexion: []
+        lineasConexion: [],
+        gruposConectados: []
       };
 
       tablero.innerHTML = '';
