@@ -229,15 +229,15 @@ function addBlock(i) {
     block.style.backgroundColor = colors[i];
     block.dataset.value = next;
     
-    // Hacer que la altura sea proporcional al valor
-    // Usamos una escala base de 3px por unidad, con mínimo de 30px
-    const heightPixels = Math.max(30, next * 3);
+    // Cada bloque tiene la altura del número BASE (n), no del múltiplo
+    // Usamos una escala de 8px por unidad
+    const heightPixels = n * 8;
     block.style.height = heightPixels + "px";
-    block.style.fontSize = (next > 20 ? "0.9em" : "1em");
+    block.style.fontSize = (n > 15 ? "0.8em" : "1em");
 
     tower.appendChild(block);
 
-    document.getElementById("label-" + i).textContent = `Último: ${next}`;
+    document.getElementById("label-" + i).textContent = `Último: ${next} (bloques de ${n})`;
 
     updateReferenceLines();
     checkMCM();
@@ -245,42 +245,36 @@ function addBlock(i) {
 
 /* ---- ACTUALIZAR LÍNEAS DE REFERENCIA ---- */
 function updateReferenceLines() {
-    // Obtener el máximo valor para calcular proporciones
-    const maxVal = Math.max(...Array.from(allMultiples), 1);
-    
     nums.forEach((n, i) => {
         const linesContainer = document.getElementById("lines-" + i);
         linesContainer.innerHTML = "";
         
         // Calcular la altura acumulada de los bloques en esta torre
-        let towerHeight = 0;
-        multiples[i].forEach(val => {
-            towerHeight += Math.max(30, val * 3);
-        });
+        // Cada bloque mide n * 8px
+        const blockHeight = n * 8;
         
         Array.from(allMultiples).sort((a,b) => a-b).forEach(val => {
             const line = document.createElement("div");
             line.className = "reference-line";
             
-            // Calcular la posición basada en el valor
-            let positionHeight = 0;
-            for (let j = 0; j < multiples[i].length; j++) {
-                const blockVal = multiples[i][j];
-                if (blockVal < val) {
-                    positionHeight += Math.max(30, blockVal * 3);
-                } else if (blockVal === val) {
-                    positionHeight += Math.max(30, blockVal * 3);
-                    break;
+            // Calcular a qué altura debería estar este valor
+            // Si val es múltiplo de n, calcular cuántos bloques son necesarios
+            if (val % n === 0) {
+                const numBlocks = val / n;
+                const position = numBlocks * blockHeight;
+                line.style.bottom = `${position}px`;
+                
+                // Si este múltiplo ya está en la torre actual, hacerlo más visible
+                if (multiples[i].includes(val)) {
+                    line.style.opacity = "1";
+                } else {
+                    line.style.opacity = "0.3";
                 }
-            }
-            
-            // Si este múltiplo está en la torre, posicionar la línea ahí
-            if (multiples[i].includes(val)) {
-                line.style.bottom = `${positionHeight - 4}px`;
             } else {
-                // Si no está en la torre, calcular proporcionalmente
-                line.style.bottom = `${(val * 3)}px`;
-                line.style.opacity = "0.3";
+                // Si no es múltiplo de esta torre, posicionar proporcionalmente pero muy tenue
+                const position = val * 8;
+                line.style.bottom = `${position}px`;
+                line.style.opacity = "0.15";
             }
             
             const label = document.createElement("span");
