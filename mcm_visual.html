@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MCM Visual – Torres de Múltiplos</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+    .block {
+        width: 60px;
+        height: 40px;
+        margin-top: 4px;
+        border-radius: 6px;
+        background: #4f46e5;
+        animation: grow 0.25s ease-out;
+    }
+    @keyframes grow {
+        from { transform: scaleY(0); opacity: 0; }
+        to   { transform: scaleY(1); opacity: 1; }
+    }
+</style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-4">
+
+<!-- CONTENEDOR PRINCIPAL -->
+<div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
+
+    <h1 class="text-3xl font-bold text-center text-indigo-700 mb-6">
+        Mínimo Común Múltiplo – Visual por Torres
+    </h1>
+
+    <!-- Selección de números -->
+    <div class="flex gap-4 justify-center mb-8">
+        <input type="number" id="n1" class="w-24 px-3 py-2 border rounded-lg" placeholder="Número 1" />
+        <input type="number" id="n2" class="w-24 px-3 py-2 border rounded-lg" placeholder="Número 2" />
+        <input type="number" id="n3" class="w-24 px-3 py-2 border rounded-lg" placeholder="(Opcional)" />
+        <button onclick="start()" class="px-5 py-2 bg-indigo-600 text-white rounded-lg font-semibold">
+            Iniciar
+        </button>
+    </div>
+
+    <!-- Torres -->
+    <div id="columns" class="grid grid-cols-3 gap-6 text-center"></div>
+
+    <div id="result" class="text-center text-xl font-bold mt-6 text-green-600 hidden"></div>
+
+</div>
+
+
+<!-- ==========================
+   LÓGICA DEL JUEGO
+=========================== -->
+<script>
+let nums = [];
+let multiples = [];
+let active = false;
+
+/* ---- INICIO ---- */
+function start() {
+    const a = parseInt(document.getElementById('n1').value);
+    const b = parseInt(document.getElementById('n2').value);
+    const c = parseInt(document.getElementById('n3').value);
+
+    nums = [a, b];
+    if (!isNaN(c)) nums.push(c);
+
+    if (nums.some(isNaN)) return alert("Introduce al menos dos números.");
+
+    multiples = nums.map(() => []);
+    active = true;
+
+    renderColumns();
+    document.getElementById("result").classList.add("hidden");
+
+    scormStart();
+}
+
+/* ---- DIBUJAR COLUMNAS ---- */
+function renderColumns() {
+    const col = document.getElementById("columns");
+    col.innerHTML = "";
+
+    nums.forEach((n, i) => {
+        const container = document.createElement("div");
+        container.className = "bg-indigo-50 rounded-lg p-4 shadow cursor-pointer hover:bg-indigo-100 transition";
+        container.onclick = () => addBlock(i);
+
+        container.innerHTML = `
+            <div class="text-xl font-bold mb-2">Número ${n}</div>
+            <div id="tower-${i}" class="flex flex-col-reverse items-center" style="min-height: 200px;"></div>
+            <div id="label-${i}" class="text-sm mt-2 text-gray-700">0</div>
+        `;
+
+        col.appendChild(container);
+    });
+}
+
+/* ---- AÑADIR BLOQUE ---- */
+function addBlock(i) {
+    if (!active) return;
+
+    const n = nums[i];
+    const next = (multiples[i].length + 1) * n;
+    multiples[i].push(next);
+
+    const tower = document.getElementById("tower-" + i);
+    const block = document.createElement("div");
+    block.className = "block";
+    block.textContent = next;
+    block.style.color = "white";
+    block.style.fontWeight = "bold";
+    block.style.display = "flex";
+    block.style.alignItems = "center";
+    block.style.justifyContent = "center";
+
+    tower.appendChild(block);
+
+    document.getElementById("label-" + i).textContent = `Último múltiplo: ${next}`;
+
+    checkMCM();
+}
+
+/* ---- DETECTAR SI COINCIDEN ---- */
+function checkMCM() {
+    let intersections = multiples.reduce((acc, arr) =>
+        acc.filter(x => arr.includes(x))
+    );
+
+    if (intersections.length > 0) {
+        const mcm = Math.min(...intersections);
+
+        showResult(mcm);
+        scormFinish(mcm);
+    }
+}
+
+/* ---- MOSTRAR RESULTADO ---- */
+function showResult(mcm) {
+    active = false;
+
+    const r = document.getElementById("result");
+    r.innerHTML = `🎉 ¡MCM encontrado! El MCM es <span class="text-indigo-700">${mcm}</span>`;
+    r.classList.remove("hidden");
+}
+
+/* ==========================
+   SCORM API (mínima)
+========================== */
+let api = null;
+
+function scormGetAPI() {
+    if (api) return api;
+
+    if (window.parent && window.parent.API) api = window.parent.API;
+    if (window.API) api = window.API;
+
+    return api;
+}
+
+function scormStart() {
+    const API = scormGetAPI();
+    if (!API) return;
+
+    API.LMSInitialize("");
+    API.LMSSetValue("cmi.core.lesson_status", "incomplete");
+    API.LMSCommit("");
+}
+
+function scormFinish(score) {
+    const API = scormGetAPI();
+    if (!API) return;
+
+    API.LMSSetValue("cmi.core.score.raw", score);
+    API.LMSSetValue("cmi.core.lesson_status", "completed");
+    API.LMSCommit("");
+    API.LMSFinish("");
+}
+</script>
+
+</body>
+</html>
