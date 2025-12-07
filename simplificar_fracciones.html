@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simplificador Visual de Fracciones</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes popIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      70% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes fadeOutUp {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-20px); }
+    }
+    @keyframes switchNumber {
+      0% { transform: scale(1); filter: blur(0px); }
+      50% { transform: scale(1.2); filter: blur(2px); color: #d946ef; /* fuchsia-600 */ }
+      100% { transform: scale(1); filter: blur(0px); }
+    }
+    
+    .animate-pop { animation: popIn 0.5s ease-out forwards; }
+    .animate-fade-out { animation: fadeOutUp 0.5s ease-out forwards; }
+    .number-change { animation: switchNumber 0.8s ease-in-out; }
+
+    .paso { opacity: 0; transform: translateY(20px); transition: all 0.6s ease-out; }
+    .paso.visible { opacity: 1; transform: translateY(0); }
+    .fraction-bar-container { transition: width 1s ease-in-out; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-fuchsia-50 p-6">
+  <div class="max-w-5xl mx-auto">
+    
+    <div class="text-center mb-8">
+      <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-fuchsia-600 bg-clip-text text-transparent mb-2">
+        ✨ Simplificador Visual
+      </h1>
+      <p class="text-gray-600 text-lg">Reduce fracciones viendo cómo desaparecen las divisiones</p>
+       </div>
+
+    <div class="bg-white rounded-2xl shadow-xl p-8 mb-6 border-b-4 border-indigo-200" id="panelInputs">
+      <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Introduce la fracción a simplificar</h3>
+      
+      <div class="flex flex-col items-center justify-center gap-6 mb-6">
+        <div class="flex items-center gap-4">
+          <div class="flex flex-col items-center">
+             <input type="number" id="numInput" value="8" min="1" max="999" 
+                   class="w-24 h-24 text-5xl font-bold text-center border-4 border-indigo-300 rounded-xl focus:border-indigo-500 focus:outline-none shadow-sm">
+             <label class="text-gray-500 mt-2 font-semibold">Numerador</label>
+          </div>
+          <span class="text-6xl font-bold text-gray-400 transform rotate-12">/</span>
+          <div class="flex flex-col items-center">
+            <input type="number" id="denInput" value="12" min="2" max="999"
+                   class="w-24 h-24 text-5xl font-bold text-center border-4 border-fuchsia-300 rounded-xl focus:border-fuchsia-500 focus:outline-none shadow-sm">
+            <label class="text-gray-500 mt-2 font-semibold">Denominador</label>
+          </div>
+        </div>
+
+        <button id="btnEmpezar" class="px-10 py-4 bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white text-2xl font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all mt-4 flex items-center gap-3">
+          🪄 ¡Simplificar!
+        </button>
+      </div>
+    </div>
+
+    <div id="areaEjercicio" class="space-y-8 hidden">
+
+      <div class="bg-white rounded-2xl shadow-lg p-6 text-center animate-pop">
+        <p class="text-gray-600 mb-2 text-lg">Vamos a simplificar:</p>
+        <div class="inline-flex flex-col items-center bg-gray-50 p-4 rounded-xl border-2 border-dashed border-gray-300">
+          <span id="bigNumOrig" class="text-6xl font-extrabold text-indigo-700 leading-none mb-2"></span>
+          <span class="h-1 w-full bg-gray-800 rounded-full"></span>
+          <span id="bigDenOrig" class="text-6xl font-extrabold text-fuchsia-700 leading-none mt-2"></span>
+        </div>
+      </div>
+
+      <div id="paso1" class="paso bg-white rounded-2xl shadow-lg p-6 overflow-hidden">
+         <div class="flex items-center gap-3 mb-4">
+          <span class="text-3xl bg-indigo-100 p-2 rounded-lg">🕵️</span>
+          <h3 class="text-2xl font-bold text-gray-800">Paso 1: Encuentra el divisor común más grande</h3>
+        </div>
+        <div class="bg-indigo-50 rounded-xl p-6 border-l-4 border-indigo-500">
+          <p class="text-lg text-gray-700 mb-4">¿Entre qué números podemos dividir EXACTAMENTE tanto al <span id="p1Num" class="font-bold text-indigo-700"></span> como al <span id="p1Den" class="font-bold text-fuchsia-700"></span>?</p>
+          
+          <p class="font-semibold mb-3">Factores comunes encontrados:</p>
+          <div id="commonFactorsContainer" class="flex flex-wrap gap-3 mb-6">
+            </div>
+          <div id="feedbackMCD" class="text-lg font-bold text-center hidden p-3 rounded-lg bg-indigo-100 text-indigo-800"></div>
+        </div>
+      </div>
+
+      <div id="paso2" class="paso bg-white rounded-2xl shadow-lg p-6 hidden">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="text-3xl bg-fuchsia-100 p-2 rounded-lg">✂️</span>
+          <h3 class="text-2xl font-bold text-gray-800">Paso 2: ¡A dividir!</h3>
+        </div>
+        <div class="bg-fuchsia-50 rounded-xl p-8 border-l-4 border-fuchsia-500 text-center">
+          <p class="text-xl text-gray-700 mb-6">Dividimos arriba y abajo por <span id="divisorElegido" class="font-extrabold text-2xl bg-white px-3 py-1 rounded-md shadow-sm border-2 border-fuchsia-300"></span></p>
+          
+          <div class="flex items-center justify-center gap-8 mb-8">
+            <div class="flex flex-col items-center p-4 bg-white rounded-xl shadow-md border-2 border-indigo-200">
+                <span class="text-gray-500 text-sm font-bold mb-2">Numerador</span>
+                <div class="text-5xl font-bold flex items-center gap-2">
+                    <span id="animNumStart" class="text-indigo-700"></span>
+                    <span class="divisor-part text-gray-400 text-4xl">÷</span>
+                    <span class="divisor-part text-fuchsia-600" id="animDivisorNum"></span>
+                </div>
+                <div class="text-4xl font-bold mt-4 hidden text-indigo-700" id="animNumResult"></div>
+            </div>
+
+             <span class="text-6xl font-bold text-gray-300">→</span>
+
+            <div class="flex flex-col items-center p-4 bg-white rounded-xl shadow-md border-2 border-fuchsia-200">
+                <span class="text-gray-500 text-sm font-bold mb-2">Denominador</span>
+                <div class="text-5xl font-bold flex items-center gap-2">
+                    <span id="animDenStart" class="text-fuchsia-700"></span>
+                    <span class="divisor-part text-gray-400 text-4xl">÷</span>
+                    <span class="divisor-part text-fuchsia-600" id="animDivisorDen"></span>
+                </div>
+                <div class="text-4xl font-bold mt-4 hidden text-fuchsia-700" id="animDenResult"></div>
+            </div>
+          </div>
+          
+          <button id="btnAnimar" class="px-8 py-3 bg-fuchsia-600 text-white text-xl font-bold rounded-lg shadow hover:bg-fuchsia-700 transition-colors animate-pulse">
+            ▶️ Ver la magia
+          </button>
+
+          <div id="resultadoAnimacion" class="hidden mt-8">
+             <p class="text-2xl font-bold text-gray-800 mb-2">Resultado simplificado:</p>
+             <div class="inline-flex flex-col items-center bg-white p-4 rounded-xl border-4 border-green-400 shadow-lg transform scale-110">
+              <span id="finalNumSimple" class="text-5xl font-extrabold text-indigo-700 leading-none mb-1"></span>
+              <span class="h-1 w-full bg-gray-800 rounded-full"></span>
+              <span id="finalDenSimple" class="text-5xl font-extrabold text-fuchsia-700 leading-none mt-1"></span>
+            </div>
+             <div class="mt-6">
+               <button id="btnIrPaso3" class="px-6 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700">Ver comparación visual ↓</button>
+             </div>
+          </div>
+        </div>
+      </div>
+
+       <div id="paso3" class="paso bg-white rounded-2xl shadow-lg p-6 hidden mb-10">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="text-3xl bg-green-100 p-2 rounded-lg">👁️‍🗨️</span>
+          <h3 class="text-2xl font-bold text-gray-800">Paso 3: El antes y el después</h3>
+        </div>
+        <div class="bg-gradient-to-r from-indigo-50 to-fuchsia-50 rounded-xl p-6 border-2 border-gray-200">
+          <p class="text-xl text-center text-gray-700 mb-8 font-semibold">¡Mira! Ocupan exactamente el mismo espacio. Son equivalentes.</p>
+          
+          <div class="grid md:grid-cols-2 gap-8 items-center justify-items-center">
+              <div class="w-full max-w-md bg-white p-4 rounded-xl shadow-md border-t-4 border-indigo-400">
+                  <p class="text-center font-bold text-gray-600 mb-2">Antes: <span id="labelAntes" class="text-xl text-indigo-700"></span></p>
+                  <div id="visualBarAntes"></div>
+              </div>
+
+              <div class="w-full max-w-md bg-white p-4 rounded-xl shadow-md border-t-4 border-green-500 relative overflow-hidden">
+                <div class="absolute inset-0 bg-green-100 opacity-20 mix-blend-multiply pointer-events-none"></div>
+                  <p class="text-center font-bold text-gray-600 mb-2">Después (Simplificada): <span id="labelDespues" class="text-xl text-green-700"></span></p>
+                  <div id="visualBarDespues"></div>
+              </div>
+          </div>
+
+           <div class="text-center mt-10">
+            <button onclick="window.location.reload()" class="px-8 py-4 bg-white text-indigo-600 border-2 border-indigo-600 text-xl font-bold rounded-xl shadow-lg hover:bg-indigo-50 transform hover:scale-105 transition-all">
+              🔄 Simplificar otra fracción
+            </button>
+           </div>
+
+        </div>
+      </div>
+
+    </div> </div>
+
+  <script>
+    // --- Funciones de Utilidad ---
+    function mcd(a, b) { return b === 0 ? a : mcd(b, a % b); }
+
+    // Encuentra todos los divisores comunes
+    function getCommonFactors(num, den) {
+        const factors = [];
+        const limit = Math.min(num, den);
+        for (let i = 2; i <= limit; i++) {
+            if (num % i === 0 && den % i === 0) {
+                factors.push(i);
+            }
+        }
+        return factors;
+    }
+
+    // Dibuja la barra (similar al ejercicio anterior pero mejorado)
+    function drawBar(num, den, colorHex, isSimplified) {
+      const percentage = (num / den) * 100;
+      const segmentWidth = 100 / den;
+      let segmentsHTML = '';
+      
+      for(let i = 0; i < den; i++) {
+        const bgColor = i < num ? colorHex : '#e5e7eb'; // Color activo vs gris
+        // Si está simplificado, no mostramos las líneas divisorias para que se vea más limpio
+        const borderClass = isSimplified ? '' : 'border-r border-white';
+        segmentsHTML += `<div style="width: ${segmentWidth}%; background-color: ${bgColor};" class="h-full ${borderClass} transition-all duration-500 first:rounded-l-lg last:rounded-r-lg last:border-r-0"></div>`;
+      }
+
+      return `
+        <div class="h-14 bg-gray-100 rounded-lg overflow-hidden flex shadow-inner border border-gray-200">
+          ${segmentsHTML}
+        </div>
+        <p class="text-center text-sm text-gray-500 mt-2">${percentage.toFixed(1)}% del total</p>
+      `;
+    }
+
+
+    // --- Estado de la aplicación ---
+    let state = {
+        n: 0, d: 0, gcd: 0, factors: [], simpleN: 0, simpleD: 0
+    };
+
+
+    // --- Lógica Principal ---
+
+    document.getElementById('btnEmpezar').onclick = () => {
+        const nInput = document.getElementById('numInput');
+        const dInput = document.getElementById('denInput');
+        const n = parseInt(nInput.value);
+        const d = parseInt(dInput.value);
+
+        if (isNaN(n) || isNaN(d) || n <= 0 || d <= 1) {
+            alert("Por favor, introduce una fracción válida. El denominador debe ser mayor que 1.");
+            return;
+        }
+
+        const gcdVal = mcd(n, d);
+        
+        if (gcdVal === 1) {
+             alert("¡Esta fracción ya es irreducible! No se puede simplificar más.");
+             return;
+        }
+
+        state = {
+            n: n, d: d,
+            gcd: gcdVal,
+            factors: getCommonFactors(n, d),
+            simpleN: n / gcdVal,
+            simpleD: d / gcdVal
+        };
+
+        // Preparar UI
+        document.getElementById('panelInputs').classList.add('hidden');
+        document.getElementById('areaEjercicio').classList.remove('hidden');
+
+        document.getElementById('bigNumOrig').textContent = state.n;
+        document.getElementById('bigDenOrig').textContent = state.d;
+        
+        setupPaso1();
+    };
+
+
+    function setupPaso1() {
+        const p1 = document.getElementById('paso1');
+        p1.classList.remove('hidden');
+        setTimeout(() => p1.classList.add('visible'), 100);
+
+        document.getElementById('p1Num').textContent = state.n;
+        document.getElementById('p1Den').textContent = state.d;
+
+        const container = document.getElementById('commonFactorsContainer');
+        container.innerHTML = '';
+        
+        // Crear botones para los factores
+        state.factors.forEach(factor => {
+            const btn = document.createElement('button');
+            btn.textContent = factor;
+            btn.className = `px-6 py-3 text-xl font-bold rounded-xl shadow-md transition-all transform hover:scale-110 focus:outline-none 
+                             ${factor === state.gcd 
+                                ? 'bg-indigo-600 text-white hover:bg-indigo-700 ring-4 ring-indigo-200' // El mejor
+                                : 'bg-white text-indigo-600 border-2 border-indigo-200 hover:bg-indigo-50'}`;
+            
+            btn.onclick = () => checkFactorSelection(factor, btn);
+            container.appendChild(btn);
+        });
+    }
+
+
+    function checkFactorSelection(selected, btnElement) {
+        const feedback = document.getElementById('feedbackMCD');
+        feedback.classList.remove('hidden');
+
+        if (selected === state.gcd) {
+            feedback.textContent = `✓ ¡Excelente! ${selected} es el Máximo Común Divisor. Es la forma más rápida.`;
+            feedback.className = 'text-lg font-bold text-center p-3 rounded-lg bg-green-100 text-green-800 animate-pop block mt-4';
+            
+            // Desactivar otros botones
+            const buttons = document.getElementById('commonFactorsContainer').getElementsByTagName('button');
+            for(let b of buttons) b.disabled = true;
+            btnElement.classList.add('animate-pulse');
+
+            setTimeout(setupPaso2, 1500);
+
+        } else {
+            feedback.textContent = `Podemos usar ${selected}, pero tendríamos que volver a simplificar después. ¡Busca el número más grande de la lista!`;
+             feedback.className = 'text-lg font-semibold text-center p-3 rounded-lg bg-orange-100 text-orange-800 animate-shake block mt-4';
+        }
+    }
+
+    function setupPaso2() {
+        const p2 = document.getElementById('paso2');
+        p2.classList.remove('hidden');
+        p2.scrollIntoView({behavior: 'smooth', block: 'center'});
+        setTimeout(() => p2.classList.add('visible'), 100);
+
+        document.getElementById('divisorElegido').textContent = state.gcd;
+
+        // Configurar estado inicial de la animación
+        document.getElementById('animNumStart').textContent = state.n;
+        document.getElementById('animDivisorNum').textContent = state.gcd;
+        document.getElementById('animDenStart').textContent = state.d;
+        document.getElementById('animDivisorDen').textContent = state.gcd;
+
+        document.getElementById('btnAnimar').onclick = runDivisionAnimation;
+    }
+
+
+    function runDivisionAnimation() {
+        const btn = document.getElementById('btnAnimar');
+        btn.disabled = true;
+        btn.classList.remove('animate-pulse');
+        btn.innerHTML = 'Calculando... 🔄';
+
+        const divisors = document.querySelectorAll('.divisor-part');
+        const numStart = document.getElementById('animNumStart');
+        const denStart = document.getElementById('animDenStart');
+        const numResult = document.getElementById('animNumResult');
+        const denResult = document.getElementById('animDenResult');
+
+        // 1. Ocultar los divisores ("desaparecen")
+        divisors.forEach(el => el.classList.add('animate-fade-out'));
+
+        setTimeout(() => {
+            // 2. Aplicar efecto de cambio a los números originales
+            numStart.classList.add('number-change');
+            denStart.classList.add('number-change');
+
+            // 3. A mitad del efecto, cambiar el texto y ocultar los originales
+            setTimeout(() => {
+                 numStart.classList.add('hidden');
+                 denStart.classList.add('hidden');
+
+                 numResult.textContent = state.simpleN;
+                 denResult.textContent = state.simpleD;
+                 
+                 numResult.classList.remove('hidden');
+                 denResult.classList.remove('hidden');
+                 numResult.classList.add('animate-pop');
+                 denResult.classList.add('animate-pop');
+
+                 btn.innerHTML = '✓ ¡Hecho!';
+                 btn.className = "px-8 py-3 bg-green-600 text-white text-xl font-bold rounded-lg shadow cursor-default";
+
+                 // Mostrar resultado final del paso 2
+                 const resAnim = document.getElementById('resultadoAnimacion');
+                 resAnim.classList.remove('hidden');
+                 resAnim.classList.add('animate-pop');
+                 document.getElementById('finalNumSimple').textContent = state.simpleN;
+                 document.getElementById('finalDenSimple').textContent = state.simpleD;
+                 
+                 document.getElementById('btnIrPaso3').onclick = setupPaso3;
+
+            }, 400); // Timing sincronizado con la mitad de 'number-change' animation (0.8s)
+
+        }, 500); // Esperar a que termine fade-out
+    }
+
+
+    function setupPaso3() {
+        const p3 = document.getElementById('paso3');
+        p3.classList.remove('hidden');
+        p3.scrollIntoView({behavior: 'smooth', block: 'start'});
+        setTimeout(() => p3.classList.add('visible'), 100);
+
+        document.getElementById('labelAntes').textContent = `${state.n}/${state.d}`;
+        // Usamos un color índigo para la barra original y le decimos que NO está simplificada (false) para que muestre divisiones
+        document.getElementById('visualBarAntes').innerHTML = drawBar(state.n, state.d, '#6366f1', false);
+
+        document.getElementById('labelDespues').textContent = `${state.simpleN}/${state.simpleD}`;
+        // Usamos un color verde para la barra nueva y le decimos que SÍ está simplificada (true) para que se vea limpia
+        document.getElementById('visualBarDespues').innerHTML = drawBar(state.simpleN, state.simpleD, '#22c55e', true);
+    }
+
+  </script>
+</body>
+</html>
