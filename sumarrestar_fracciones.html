@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suma y Resta de Fracciones Interactiva</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+    .animate-fade-up { animation: fadeInUp 0.6s ease-out; }
+    .animate-bounce-custom { animation: bounce 0.6s ease-in-out; }
+    .animate-shake { animation: shake 0.5s ease-in-out; }
+    .paso { opacity: 0; transform: translateY(20px); transition: all 0.6s ease-out; }
+    .paso.visible { opacity: 1; transform: translateY(0); }
+    .correcto { background-color: #d1fae5; border-color: #10b981; }
+    .incorrecto { background-color: #fee2e2; border-color: #ef4444; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6">
+  <div class="max-w-6xl mx-auto">
+    
+    <div class="text-center mb-8">
+      <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mb-2">
+        ➕➖ Suma y Resta de Fracciones
+      </h1>
+      <p class="text-gray-600 text-lg">Resuelve paso a paso de forma interactiva</p>
+      <a href="index.html" class="inline-block mt-4 text-orange-600 hover:text-orange-700 font-semibold">← Volver al índice</a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-8 mb-6" id="panelInputs">
+      <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Introduce las fracciones</h3>
+      
+      <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
+        <div class="flex items-center gap-2">
+          <input type="number" id="num1" value="1" min="1" max="20" 
+                 class="w-16 h-16 text-3xl font-bold text-center border-4 border-pink-300 rounded-lg focus:border-pink-500 focus:outline-none">
+          <span class="text-4xl font-bold text-pink-600">/</span>
+          <input type="number" id="den1" value="4" min="1" max="20"
+                 class="w-16 h-16 text-3xl font-bold text-center border-4 border-pink-300 rounded-lg focus:border-pink-500 focus:outline-none">
+        </div>
+
+        <select id="operacion" class="px-6 py-4 text-3xl font-bold border-4 border-gray-300 rounded-lg focus:border-gray-500 focus:outline-none">
+          <option value="+">+</option>
+          <option value="-">−</option>
+        </select>
+
+        <div class="flex items-center gap-2">
+          <input type="number" id="num2" value="1" min="1" max="20"
+                 class="w-16 h-16 text-3xl font-bold text-center border-4 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none">
+          <span class="text-4xl font-bold text-purple-600">/</span>
+          <input type="number" id="den2" value="6" min="1" max="20"
+                 class="w-16 h-16 text-3xl font-bold text-center border-4 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none">
+        </div>
+
+        <button id="btnIniciar" class="px-8 py-4 bg-gradient-to-r from-amber-600 to-orange-600 text-white text-xl font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all">
+          🚀 ¡Empezar!
+        </button>
+      </div>
+    </div>
+
+    <div id="areaEjercicio" class="space-y-6 hidden">
+
+      <div class="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl shadow-lg p-6">
+        <p id="operacionPlanteada" class="text-4xl font-bold text-center text-gray-800"></p>
+      </div>
+
+      <!-- Paso 1: MCM -->
+      <div id="paso1" class="paso bg-white rounded-2xl shadow-lg p-6 hidden">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="text-3xl">🔍</span>
+          <h3 class="text-2xl font-bold text-gray-800">Paso 1: Encuentra el MCM</h3>
+        </div>
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6">
+          <p class="text-lg text-gray-700 mb-4">Para sumar o restar fracciones, necesitamos el mismo denominador.</p>
+          <p class="text-xl font-semibold mb-4" id="preguntaMCM"></p>
+          
+          <div class="flex items-center justify-center gap-4 mb-4">
+            <label class="text-xl font-bold">MCM = </label>
+            <input type="number" id="inputMCM" min="1" max="200"
+                   class="w-24 h-24 text-4xl font-bold text-center border-4 border-blue-300 rounded-lg focus:border-blue-500 focus:outline-none">
+            <button id="btnComprobarMCM" class="px-6 py-3 bg-green-600 text-white text-lg font-bold rounded-lg hover:bg-green-700 transition-colors">
+              ✓ Comprobar
+            </button>
+          </div>
+          
+          <div id="feedbackMCM" class="hidden mt-4 p-4 rounded-lg text-center text-lg font-semibold"></div>
+        </div>
+      </div>
+
+      <!-- Paso 2: Amplificar Fracción 1 -->
+      <div id="paso2" class="paso bg-white rounded-2xl shadow-lg p-6 hidden">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="text-3xl">🔄</span>
+          <h3 class="text-2xl font-bold text-gray-800">Paso 2: Amplifica la primera fracción</h3>
+        </div>
+        <div class="bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl p-6 border-2 border-pink-300">
+          <p class="text-lg text-gray-700 mb-4">Para que el denominador sea <span id="mcmDisplay1" class="font-bold"></span>, multiplicamos por <span id="factor1Display" class="font-bold"></span>:</p>
+          
+          <div class="flex items-center justify-center gap-3 mb-4 flex-wrap">
+            <span class="text-2xl font-bold text-pink-600" id="fraccion1Original"></span>
+            <span class="text-2xl font-bold">×</span>
+            <span class="text-2xl font-bold" id="factor1"></span>
+            <span class="text-2xl font-bold">=</span>
+            
+            <div class="flex items-center gap-2">
+              <input type="number" id="inputNum1Amp" min="0" max="200"
+                     class="w-20 h-20 text-3xl font-bold text-center border-4 border-pink-300 rounded-lg focus:border-pink-500 focus:outline-none" placeholder="?">
+              <span class="text-3xl font-bold text-pink-600">/</span>
+              <input type="number" id="inputDen1Amp" min="1" max="200"
+                     class="w-20 h-20 text-3xl font-bold text-center border-4 border-pink-300 rounded-lg focus:border-pink-500 focus:outline-none" placeholder="?">
+            </div>
+            
+            <button id="btnComprobarAmp1" class="px-6 py-3 bg-green-600 text-white text-lg font-bold rounded-lg hover:bg-green-700 transition-colors">
+              ✓ Comprobar
+            </button>
+          </div>
+          
+          <div id="feedbackAmp1" class="hidden mt-4 p-4 rounded-lg text-center text-lg font-semibold"></div>
+          <div id="visualAmp1" class="hidden mt-4"></div>
+        </div>
+      </div>
+
+      <!-- Paso 3: Amplificar Fracción 2 -->
+      <div id="paso3" class="paso bg-white rounded-2xl shadow-lg p-6 hidden">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="text-3xl">🔄</span>
+          <h3 class="text-2xl font-bold text-gray-800">Paso 3: Amplifica la segunda fracción</h3>
+        </div>
+        <div class="bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl p-6 border-2 border-purple-300">
+          <p class="text-lg text-gray-700 mb-4">Para que el denominador sea <span id="mcmDisplay2" class="font-bold"></span>, multiplicamos por <span id="factor2Display" class="font-bold"></span>:</p>
+          
+          <div class="flex items-center justify-center gap-3 mb-4 flex-wrap">
+            <span class="text-2xl font-bold text-purple-600" id="fraccion2Original"></span>
+            <span class="text-2xl font-bold">×</span>
+            <span class="text-2xl font-bold" id="factor2"></span>
+            <span class="text-2xl font-bold">=</span>
+            
+            <div class="flex items-center gap-2">
+              <input type="number" id="inputNum2Amp" min="0" max="200"
+                     class="w-20 h-20 text-3xl font-bold text-center border-4 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="?">
+              <span class="text-3xl font-bold text-purple-600">/</span>
+              <input type="number" id="inputDen2Amp" min="1" max="200"
+                     class="w-20 h-20 text-3xl font-bold text-center border-4 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="?">
+            </div>
+            
+            <button id="btnComprobarAmp2" class="px-6 py-3 bg-green-600 text-white text-lg font-bold rounded-lg hover:bg-green-700 transition-colors">
+              ✓ Comprobar
+            </button>
+          </div>
+          
+          <div id="feedbackAmp2" class="hidden mt-4 p-4 rounded-lg text-center text-lg font-semibold"></div>
+          <div id="visualAmp2" class="hidden mt-4"></div>
+        </div>
+      </div>
+
+      <!-- Paso 4: Realizar operación -->
+      <div id="paso4" class="paso bg-white rounded-2xl shadow-lg p-6 hidden">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="text-3xl" id="iconoOperacion">➕</span>
+          <h3 class="text-2xl font-bold text-gray-800">Paso 4: Realiza la operación</h3>
+        </div>
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6">
+          <p class="text-lg text-gray-700 mb-4">Ahora que tienen el mismo denominador, opera los numeradores:</p>
+          <p class="text-2xl font-bold text-center mb-4" id="operacionNumeradores"></p>
+          
+          <div class="flex items-center justify-center gap-3 mb-4 flex-wrap">
+            <label class="text-xl font-bold">Resultado: </label>
+            <input type="number" id="inputNumResultado" min="-200" max="200"
+                   class="w-20 h-20 text-3xl font-bold text-center border-4 border-amber-300 rounded-lg focus:border-amber-500 focus:outline-none" placeholder="?">
+            <span class="text-3xl font-bold text-amber-600">/</span>
+            <span class="text-3xl font-bold text-amber-600" id="denResultado"></span>
+            
+            <button id="btnComprobarOp" class="px-6 py-3 bg-green-600 text-white text-lg font-bold rounded-lg hover:bg-green-700 transition-colors">
+              ✓ Comprobar
+            </button>
+          </div>
+          
+          <div id="feedbackOp" class="hidden mt-4 p-4 rounded-lg text-center text-lg font-semibold"></div>
+          <div id="visualResultado" class="hidden mt-4"></div>
+        </div>
+      </div>
+
+      <!-- Paso 5: Simplificar -->
+      <div id="paso5" class="paso bg-white rounded-2xl shadow-lg p-6 hidden">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="text-3xl">✨</span>
+          <h3 class="text-2xl font-bold text-gray-800">Paso 5: Simplifica el resultado</h3>
+        </div>
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6">
+          <p class="text-lg text-gray-700 mb-4" id="preguntaSimp"></p>
+          
+          <div class="flex items-center justify-center gap-3 mb-4 flex-wrap">
+            <span class="text-2xl font-bold" id="fraccionSinSimplificar"></span>
+            <span class="text-2xl font-bold">=</span>
+            
+            <input type="number" id="inputNumSimp" min="-200" max="200"
+                   class="w-20 h-20 text-3xl font-bold text-center border-4 border-green-300 rounded-lg focus:border-green-500 focus:outline-none" placeholder="?">
+            <span class="text-3xl font-bold text-green-600">/</span>
+            <input type="number" id="inputDenSimp" min="1" max="200"
+                   class="w-20 h-20 text-3xl font-bold text-center border-4 border-green-300 rounded-lg focus:border-green-500 focus:outline-none" placeholder="?">
+            
+            <button id="btnComprobarSimp" class="px-6 py-3 bg-green-600 text-white text-lg font-bold rounded-lg hover:bg-green-700 transition-colors">
+              ✓ Comprobar
+            </button>
+          </div>
+          
+          <div id="feedbackSimp" class="hidden mt-4 p-4 rounded-lg text-center text-lg font-semibold"></div>
+        </div>
+      </div>
+
+      <!-- Resultado final -->
+      <div id="pasoFinal" class="paso bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl shadow-lg p-8 text-white text-center hidden">
+        <h3 class="text-3xl font-bold mb-4 animate-bounce-custom">🎉 ¡Excelente trabajo!</h3>
+        <p class="text-2xl mb-2">Resultado final:</p>
+        <p id="resultadoFinal" class="text-6xl font-bold mb-6"></p>
+        <button id="btnReiniciar" class="px-8 py-4 bg-white text-green-600 text-xl font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all">
+          🔄 Nueva Operación
+        </button>
+      </div>
+
+    </div>
+
+    <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mt-8">
+      <h3 class="text-lg font-semibold text-blue-900 mb-3">💡 ¿Cómo funciona?</h3>
+      <ul class="text-blue-800 space-y-2 list-disc list-inside">
+        <li>Introduce dos fracciones y selecciona la operación</li>
+        <li>Resuelve cada paso del ejercicio introduciendo tus respuestas</li>
+        <li>Recibirás feedback inmediato: ✓ correcto o ✗ pista para intentarlo de nuevo</li>
+        <li>Completa los 5 pasos: MCM → Amplificar 1 → Amplificar 2 → Operar → Simplificar</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <script>
+    let ej = null;
+
+    function mcd(a, b) { return b === 0 ? a : mcd(b, a % b); }
+    function mcm(a, b) { return (a * b) / mcd(a, b); }
+    function simplificar(num, den) {
+      if (num === 0) return [0, 1];
+      const d = mcd(Math.abs(num), Math.abs(den));
+      return [num / d, den / d];
+    }
+
+    function dibujarBarra(num, den, color) {
+      const p = Math.min(Math.abs(num / den) * 100, 100);
+      return `<div class="mt-3"><div class="flex items-center justify-between mb-2">
+        <span class="text-2xl font-bold" style="color: ${color}">${num}/${den}</span>
+        <span class="text-sm text-gray-600">${p.toFixed(1)}%</span></div>
+        <div style="max-width: 400px; height: 60px;" class="bg-gray-200 rounded-lg overflow-hidden mx-auto">
+        <div style="width: ${p}%; background: linear-gradient(to right, ${color}, ${color}dd);" class="h-full rounded-lg"></div></div></div>`;
+    }
+
+    document.getElementById('btnIniciar').onclick = () => {
+      const n1 = +document.getElementById('num1').value;
+      const d1 = +document.getElementById('den1').value;
+      const n2 = +document.getElementById('num2').value;
+      const d2 = +document.getElementById('den2').value;
+      const op = document.getElementById('operacion').value;
+
+      if (d1 === 0 || d2 === 0 || isNaN(n1) || isNaN(d1) || isNaN(n2) || isNaN(d2)) {
+        alert('⚠️ Completa todos los campos correctamente');
+        return;
+      }
+
+      const m = mcm(d1, d2);
+      const f1 = m / d1, f2 = m / d2;
+      const na1 = n1 * f1, na2 = n2 * f2;
+      const nr = op === '+' ? na1 + na2 : na1 - na2;
+      const [ns, ds] = simplificar(nr, m);
+
+      ej = { n1, d1, n2, d2, op, m, f1, f2, na1, na2, nr, dr: m, ns, ds };
+
+      document.getElementById('panelInputs').style.display = 'none';
+      document.getElementById('areaEjercicio').classList.remove('hidden');
+
+      const sg = op === '+' ? '+' : '−';
+      document.getElementById('operacionPlanteada').innerHTML = 
+        `<span class="text-pink-600">${n1}/${d1}</span> ${sg} <span class="text-purple-600">${n2}/${d2}</span>`;
+      document.getElementById('iconoOperacion').textContent = op === '+' ? '➕' : '➖';
+
+      mostrarPaso1();
+    };
+
+    function mostrarPaso1() {
+      document.getElementById('paso1').classList.remove('hidden');
+      document.getElementById('paso1').classList.add('visible');
+      document.getElementById('preguntaMCM').textContent = `¿Cuál es el MCM de ${ej.d1} y ${ej.d2}?`;
+      document.getElementById('inputMCM').focus();
+    }
+
+    document.getElementById('btnComprobarMCM').onclick = () => {
+      const r = +document.getElementById('inputMCM').value;
+      const fb = document.getElementById('feedbackMCM');
+      fb.classList.remove('hidden', 'correcto', 'incorrecto', 'animate-bounce-custom', 'animate-shake');
+      
+      if (r === ej.m) {
+        fb.classList.add('correcto', 'animate-bounce-custom');
+        fb.textContent = `✓ ¡Correcto! El MCM es ${ej.m}`;
+        document.getElementById('inputMCM').disabled = true;
+        document.getElementById('btnComprobarMCM').disabled = true;
+        setTimeout(mostrarPaso2, 1500);
+      } else {
+        fb.classList.add('incorrecto', 'animate-shake');
+        fb.textContent = `✗ Incorrecto. Pista: Es el múltiplo común más pequeño de ${ej.d1} y ${ej.d2}`;
+      }
+    };
+
+    function mostrarPaso2() {
+      document.getElementById('paso2').classList.remove('hidden');
+      document.getElementById('paso2').classList.add('visible');
+      document.getElementById('mcmDisplay1').textContent = ej.m;
+      document.getElementById('factor1Display').textContent = `${ej.f1}/${ej.f1}`;
+      document.getElementById('fraccion1Original').textContent = `${ej.n1}/${ej.d1}`;
+      document.getElementById('factor1').textContent = `${ej.f1}/${ej.f1}`;
+      document.getElementById('inputNum1Amp').focus();
+    }
+
+    document.getElementById('btnComprobarAmp1').onclick = () => {
+      const rn = +document.getElementById('inputNum1Amp').value;
+      const rd = +document.getElementById('inputDen1Amp').value;
+      const fb = document.getElementById('feedbackAmp1');
+      const vs = document.getElementById('visualAmp1');
+      fb.classList.remove('hidden', 'correcto', 'incorrecto', 'animate-bounce-custom', 'animate-shake');
+      
+      if (rn === ej.na1 && rd === ej.m) {
+        fb.classList.add('correcto', 'animate-bounce-custom');
+        fb.textContent = `✓ ¡Correcto! ${ej.n1}/${ej.d1} × ${ej.f1}/${ej.f1} = ${ej.na1}/${ej.m}`;
+        vs.classList.remove('hidden');
+        vs.innerHTML = dibujarBarra(ej.na1, ej.m, '#ec4899');
+        document.getElementById('inputNum1Amp').disabled = true;
+        document.getElementById('inputDen1Amp').disabled = true;
+        document.getElementById('btnComprobarAmp1').disabled = true;
+        setTimeout(mostrarPaso3, 1500);
+      } else {
+        fb.classList.add('incorrecto', 'animate-shake');
+        fb.textContent = `✗ Incorrecto. Calcula: ${ej.n1} × ${ej.f1} y ${ej.d1} × ${ej.f1}`;
+      }
+    };
+
+    function mostrarPaso3() {
+      document.getElementById('paso3').classList.remove('hidden');
+      document.getElementById('paso3').classList.add('visible');
+      document.getElementById('mcmDisplay2').textContent = ej.m;
+      document.getElementById('factor2Display').textContent = `${ej.f2}/${ej.f2}`;
+      document.getElementById('fraccion2Original').textContent = `${ej.n2}/${ej.d2}`;
+      document.getElementById('factor2').textContent = `${ej.f2}/${ej.f2}`;
+      document.getElementById('inputNum2Amp').focus();
+    }
+
+    document.getElementById('btnComprobarAmp2').onclick = () => {
+      const rn = +document.getElementById('inputNum2Amp').value;
+      const rd = +document.getElementById('inputDen2Amp').value;
+      const fb = document.getElementById('feedbackAmp2');
+      const vs = document.getElementById('visualAmp2');
+      fb.classList.remove('hidden', 'correcto', 'incorrecto', 'animate-bounce-custom', 'animate-shake');
+      
+      if (rn === ej.na2 && rd === ej.m) {
+        fb.classList.add('correcto', 'animate-bounce-custom');
+        fb.textContent = `✓ ¡Correcto! ${ej.n2}/${ej.d2} × ${ej.f2}/${ej.f2} = ${ej.na2}/${ej.m}`;
+        vs.classList.remove('hidden');
+        vs.innerHTML = dibujarBarra(ej.na2, ej.m, '#a855f7');
+        document.getElementById('inputNum2Amp').disabled = true;
+        document.getElementById('inputDen2Amp').disabled = true;
+        document.getElementById('btnComprobarAmp2').disabled = true;
+        setTimeout(mostrarPaso4, 1500);
+      } else {
+        fb.classList.add('incorrecto', 'animate-shake');
+        fb.textContent = `✗ Incorrecto. Calcula: ${ej.n2} × ${ej.f2} y ${ej.d2} × ${ej.f2}`;
+      }
+    };
+
+    function mostrarPaso4() {
+      document.getElementById('paso4').classList.remove('hidden');
+      document.getElementById('paso4').classList.add('visible');
+      const sg = ej.op === '+' ? '+' : '−';
+      document.getElementById('operacionNumeradores').textContent = `${ej.na1} ${sg} ${ej.na2} = ?`;
+      document.getElementById('denResultado').textContent = ej.m;
+      document.getElementById('inputNumResultado').focus();
+    }
+
+    document.getElementById('btnComprobarOp').onclick = () => {
+      const r = +document.getElementById('inputNumResultado').value;
+      const fb = document.getElementById('feedbackOp');
+      const vs = document.getElementById('visualResultado');
+      fb.classList.remove('hidden', 'correcto', 'incorrecto', 'animate-bounce-custom', 'animate-shake');
+      
+      if (r === ej.nr) {
+        fb.classList.add('correcto', 'animate-bounce-custom');
+        const sg = ej.op === '+' ? '+' : '−';
+        fb.textContent = `✓ ¡Correcto! ${ej.na1} ${sg} ${ej.na2} = ${ej.nr}`;
+        vs.classList.remove('hidden');
+        vs.innerHTML = dibujarBarra(ej.nr, ej.m, '#f59e0b');
+        document.getElementById('inputNumResultado').disabled = true;
+        document.getElementById('btnComprobarOp').disabled = true;
+        setTimeout(mostrarPaso5, 1500);
+      } else {
+        fb.classList.add('incorrecto', 'animate-shake');
+        const sg = ej.op === '+' ? 'suma' : 'resta';
+        fb.textContent = `✗ Incorrecto. Recuerda ${sg}r: ${ej.na1} ${ej.op} ${ej.na2}`;
+      }
+    };
+
+    function mostrarPaso5() {
+      document.getElementById('paso5').classList.remove('hidden');
+      document.getElementById('paso5').classList.add('visible');
+      document.getElementById('fraccionSinSimplificar').textContent = `${ej.nr}/${ej.m}`;
+      
+      if (ej.ns === ej.nr && ej.ds === ej.m) {
+        document.getElementById('preguntaSimp').textContent = 'Esta fracción ya está simplificada. Escríbela de nuevo:';
+      } else {
+        document.getElementById('preguntaSimp').textContent = 'Simplifica dividiendo numerador y denominador por su MCD:';
+      }
+      document.getElementById('inputNumSimp').focus();
+    }
+
+    document.getElementById('btnComprobarSimp').onclick = () => {
+      const rn = +document.getElementById('inputNumSimp').value;
+      const rd = +document.getElementById('inputDenSimp').value;
+      const fb = document.getElementById('feedbackSimp');
+      fb.classList.remove('hidden', 'correcto', 'incorrecto', 'animate-bounce-custom', 'animate-shake');
+      
+      if (rn === ej.ns && rd === ej.ds) {
+        fb.
+          fb.classList.add('correcto', 'animate-bounce-custom');
+        fb.textContent = '✓ ¡Perfecto! Has terminado el ejercicio.';
+        
+        // Desactivar inputs
+        document.getElementById('inputNumSimp').disabled = true;
+        document.getElementById('inputDenSimp').disabled = true;
+        document.getElementById('btnComprobarSimp').disabled = true;
+        
+        // Ir al paso final
+        setTimeout(mostrarPasoFinal, 1500);
+      } else {
+        fb.classList.add('incorrecto', 'animate-shake');
+        
+        // Feedback inteligente: si la fracción es equivalente pero no simplificada
+        if (rn / rd === ej.ns / ej.ds) {
+             fb.textContent = '✗ La fracción es correcta pero AÚN se puede simplificar más.';
+        } else {
+             fb.textContent = '✗ Incorrecto. Asegúrate de dividir arriba y abajo por el mismo número.';
+        }
+      }
+    };
+
+    function mostrarPasoFinal() {
+      const pasoFinal = document.getElementById('pasoFinal');
+      pasoFinal.classList.remove('hidden');
+      pasoFinal.classList.add('visible');
+      
+      // Scroll suave hacia el resultado
+      pasoFinal.scrollIntoView({ behavior: 'smooth' });
+      
+      // Mostrar resultado (si el denominador es 1, mostrar solo el entero)
+      if (ej.ds === 1) {
+        document.getElementById('resultadoFinal').textContent = ej.ns;
+      } else {
+        document.getElementById('resultadoFinal').textContent = `${ej.ns}/${ej.ds}`;
+      }
+    }
+
+    document.getElementById('btnReiniciar').onclick = () => {
+      // Recargar la página para limpiar todo el estado y empezar de cero limpio
+      window.location.reload();
+    };
+  </script>
+</body>
+</html>
