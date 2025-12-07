@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparador de Fracciones</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-slide-in {
+      animation: slideIn 0.5s ease-out;
+    }
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+    .animate-pulse-custom {
+      animation: pulse 0.6s ease-in-out;
+    }
+    .fraction-bar {
+      transition: all 0.3s ease;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6">
+  <div class="max-w-6xl mx-auto">
+    
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-2">
+        Comparador de Fracciones
+      </h1>
+      <p class="text-gray-600 text-lg">Compara fracciones de forma visual y descubre cuál es mayor</p>
+      <a href="index.html" class="inline-block mt-4 text-purple-600 hover:text-purple-700 font-semibold">← Volver al índice</a>
+    </div>
+
+    <!-- Inputs de fracciones -->
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      
+      <!-- Fracción 1 -->
+      <div class="bg-white rounded-2xl shadow-lg p-6">
+        <h3 class="text-2xl font-bold text-pink-600 mb-4 text-center">Fracción 1</h3>
+        <div class="flex items-center justify-center gap-4 mb-4">
+          <div class="text-center">
+            <input 
+              type="number" 
+              id="numerador1" 
+              value="3" 
+              min="1" 
+              max="20"
+              class="w-20 h-20 text-3xl font-bold text-center border-4 border-pink-300 rounded-lg focus:border-pink-500 focus:outline-none"
+            >
+            <p class="text-sm text-gray-600 mt-2">Numerador</p>
+          </div>
+          <div class="text-5xl font-bold text-pink-600">/</div>
+          <div class="text-center">
+            <input 
+              type="number" 
+              id="denominador1" 
+              value="4" 
+              min="1" 
+              max="20"
+              class="w-20 h-20 text-3xl font-bold text-center border-4 border-pink-300 rounded-lg focus:border-pink-500 focus:outline-none"
+            >
+            <p class="text-sm text-gray-600 mt-2">Denominador</p>
+          </div>
+        </div>
+        <div id="visual1" class="mt-6"></div>
+      </div>
+
+      <!-- Fracción 2 -->
+      <div class="bg-white rounded-2xl shadow-lg p-6">
+        <h3 class="text-2xl font-bold text-purple-600 mb-4 text-center">Fracción 2</h3>
+        <div class="flex items-center justify-center gap-4 mb-4">
+          <div class="text-center">
+            <input 
+              type="number" 
+              id="numerador2" 
+              value="2" 
+              min="1" 
+              max="20"
+              class="w-20 h-20 text-3xl font-bold text-center border-4 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none"
+            >
+            <p class="text-sm text-gray-600 mt-2">Numerador</p>
+          </div>
+          <div class="text-5xl font-bold text-purple-600">/</div>
+          <div class="text-center">
+            <input 
+              type="number" 
+              id="denominador2" 
+              value="3" 
+              min="1" 
+              max="20"
+              class="w-20 h-20 text-3xl font-bold text-center border-4 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none"
+            >
+            <p class="text-sm text-gray-600 mt-2">Denominador</p>
+          </div>
+        </div>
+        <div id="visual2" class="mt-6"></div>
+      </div>
+
+    </div>
+
+    <!-- Botón Comparar -->
+    <div class="text-center mb-8">
+      <button 
+        id="btnComparar"
+        class="px-12 py-4 bg-gradient-to-r from-pink-600 to-purple-600 text-white text-xl font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all"
+      >
+        🔍 Comparar Fracciones
+      </button>
+    </div>
+
+    <!-- Resultado -->
+    <div id="resultado" class="hidden animate-slide-in">
+      <div class="bg-white rounded-2xl shadow-lg p-8 mb-6">
+        <h3 class="text-2xl font-bold text-center mb-6 text-gray-800">Resultado de la Comparación</h3>
+        
+        <!-- Símbolo de comparación -->
+        <div class="flex items-center justify-center gap-8 mb-8">
+          <div id="frac1Display" class="text-center">
+            <div class="text-5xl font-bold text-pink-600"></div>
+            <div class="text-xl text-gray-600 mt-2"></div>
+          </div>
+          
+          <div id="simboloComparacion" class="text-7xl font-bold animate-pulse-custom"></div>
+          
+          <div id="frac2Display" class="text-center">
+            <div class="text-5xl font-bold text-purple-600"></div>
+            <div class="text-xl text-gray-600 mt-2"></div>
+          </div>
+        </div>
+
+        <!-- Explicación -->
+        <div id="explicacion" class="bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl p-6 text-center"></div>
+      </div>
+
+      <!-- Visualización comparativa con barras -->
+      <div class="bg-white rounded-2xl shadow-lg p-8">
+        <h3 class="text-2xl font-bold text-center mb-6 text-gray-800">Comparación Visual</h3>
+        <div class="space-y-8">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl font-bold text-pink-600" id="labelFrac1"></span>
+              <span class="text-lg text-gray-600" id="valorDecimal1"></span>
+            </div>
+            <div class="h-16 bg-gray-200 rounded-lg overflow-hidden relative">
+              <div id="barra1" class="h-full bg-gradient-to-r from-pink-400 to-pink-600 fraction-bar rounded-lg"></div>
+            </div>
+          </div>
+          
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl font-bold text-purple-600" id="labelFrac2"></span>
+              <span class="text-lg text-gray-600" id="valorDecimal2"></span>
+            </div>
+            <div class="h-16 bg-gray-200 rounded-lg overflow-hidden relative">
+              <div id="barra2" class="h-full bg-gradient-to-r from-purple-400 to-purple-600 fraction-bar rounded-lg"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info adicional -->
+    <div class="mt-8 bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+      <h3 class="text-lg font-semibold text-blue-900 mb-2">💡 ¿Cómo funciona?</h3>
+      <ul class="text-blue-800 space-y-1 list-disc list-inside">
+        <li>Introduce dos fracciones usando los campos numerador y denominador</li>
+        <li>Haz clic en "Comparar Fracciones" para ver cuál es mayor</li>
+        <li>La comparación se realiza calculando los productos cruzados</li>
+        <li>Las barras visuales te ayudan a ver la diferencia de tamaño</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <script>
+    const num1Input = document.getElementById('numerador1');
+    const den1Input = document.getElementById('denominador1');
+    const num2Input = document.getElementById('numerador2');
+    const den2Input = document.getElementById('denominador2');
+    const btnComparar = document.getElementById('btnComparar');
+    const resultadoDiv = document.getElementById('resultado');
+    const visual1 = document.getElementById('visual1');
+    const visual2 = document.getElementById('visual2');
+
+    function simplificar(num, den) {
+      const mcd = (a, b) => b === 0 ? a : mcd(b, a % b);
+      const divisor = mcd(Math.abs(num), Math.abs(den));
+      return [num / divisor, den / divisor];
+    }
+
+    function dibujarFraccionPequena(container, numerador, denominador, color) {
+      const porcentaje = (numerador / denominador) * 100;
+      const porcentajeLimitado = Math.min(porcentaje, 100);
+      
+      container.innerHTML = `
+        <div class="text-center mb-2">
+          <span class="text-lg font-bold" style="color: ${color}">${numerador}/${denominador}</span>
+        </div>
+        <div class="h-8 bg-gray-200 rounded-lg overflow-hidden">
+          <div class="h-full rounded-lg transition-all duration-500" 
+               style="width: ${porcentajeLimitado}%; background: linear-gradient(to right, ${color}, ${color}dd);"></div>
+        </div>
+        <div class="text-sm text-gray-600 text-center mt-1">${porcentajeLimitado.toFixed(1)}%</div>
+      `;
+    }
+
+    function actualizarVisuales() {
+      const num1 = parseInt(num1Input.value) || 1;
+      const den1 = parseInt(den1Input.value) || 1;
+      const num2 = parseInt(num2Input.value) || 1;
+      const den2 = parseInt(den2Input.value) || 1;
+
+      dibujarFraccionPequena(visual1, num1, den1, '#ec4899');
+      dibujarFraccionPequena(visual2, num2, den2, '#a855f7');
+    }
+
+    function compararFracciones() {
+      const num1 = parseInt(num1Input.value) || 1;
+      const den1 = parseInt(den1Input.value) || 1;
+      const num2 = parseInt(num2Input.value) || 1;
+      const den2 = parseInt(den2Input.value) || 1;
+
+      // Validaciones
+      if (den1 === 0 || den2 === 0) {
+        alert('⚠️ El denominador no puede ser cero');
+        return;
+      }
+
+      // Calcular valores decimales
+      const valor1 = num1 / den1;
+      const valor2 = num2 / den2;
+
+      // Simplificar fracciones
+      const [num1Simp, den1Simp] = simplificar(num1, den1);
+      const [num2Simp, den2Simp] = simplificar(num2, den2);
+
+      // Determinar comparación usando productos cruzados
+      const producto1 = num1 * den2;
+      const producto2 = num2 * den1;
+      
+      let simbolo, textoComparacion, colorResultado;
+      if (producto1 > producto2) {
+        simbolo = '>';
+        textoComparacion = `${num1}/${den1} es MAYOR que ${num2}/${den2}`;
+        colorResultado = 'text-pink-600';
+      } else if (producto1 < producto2) {
+        simbolo = '<';
+        textoComparacion = `${num1}/${den1} es MENOR que ${num2}/${den2}`;
+        colorResultado = 'text-purple-600';
+      } else {
+        simbolo = '=';
+        textoComparacion = `${num1}/${den1} es IGUAL a ${num2}/${den2}`;
+        colorResultado = 'text-green-600';
+      }
+
+      // Mostrar resultado
+      resultadoDiv.classList.remove('hidden');
+      resultadoDiv.classList.add('animate-slide-in');
+
+      // Actualizar displays
+      document.querySelector('#frac1Display > div:first-child').textContent = `${num1}/${den1}`;
+      document.querySelector('#frac1Display > div:last-child').textContent = 
+        num1Simp !== num1 || den1Simp !== den1 ? `(${num1Simp}/${den1Simp})` : '';
+      
+      document.querySelector('#frac2Display > div:first-child').textContent = `${num2}/${den2}`;
+      document.querySelector('#frac2Display > div:last-child').textContent = 
+        num2Simp !== num2 || den2Simp !== den2 ? `(${num2Simp}/${den2Simp})` : '';
+
+      const simboloDiv = document.getElementById('simboloComparacion');
+      simboloDiv.textContent = simbolo;
+      simboloDiv.className = `text-7xl font-bold animate-pulse-custom ${colorResultado}`;
+
+      // Explicación
+      const explicacionDiv = document.getElementById('explicacion');
+      explicacionDiv.innerHTML = `
+        <p class="text-2xl font-bold ${colorResultado} mb-3">${textoComparacion}</p>
+        <p class="text-gray-700 text-lg mb-2">
+          <strong>Método de productos cruzados:</strong>
+        </p>
+        <p class="text-gray-700">
+          ${num1} × ${den2} = <strong>${producto1}</strong> ${simbolo === '>' ? '>' : simbolo === '<' ? '<' : '='} 
+          ${num2} × ${den1} = <strong>${producto2}</strong>
+        </p>
+      `;
+
+      // Actualizar barras comparativas
+      document.getElementById('labelFrac1').textContent = `${num1}/${den1}`;
+      document.getElementById('labelFrac2').textContent = `${num2}/${den2}`;
+      
+      document.getElementById('valorDecimal1').textContent = `≈ ${valor1.toFixed(4)}`;
+      document.getElementById('valorDecimal2').textContent = `≈ ${valor2.toFixed(4)}`;
+
+      const porcentaje1 = Math.min((valor1 / Math.max(valor1, valor2)) * 100, 100);
+      const porcentaje2 = Math.min((valor2 / Math.max(valor1, valor2)) * 100, 100);
+
+      document.getElementById('barra1').style.width = porcentaje1 + '%';
+      document.getElementById('barra2').style.width = porcentaje2 + '%';
+
+      // Scroll al resultado
+      setTimeout(() => {
+        resultadoDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    }
+
+    // Event listeners
+    btnComparar.addEventListener('click', compararFracciones);
+    
+    num1Input.addEventListener('input', actualizarVisuales);
+    den1Input.addEventListener('input', actualizarVisuales);
+    num2Input.addEventListener('input', actualizarVisuales);
+    den2Input.addEventListener('input', actualizarVisuales);
+
+    // Permitir Enter para comparar
+    [num1Input, den1Input, num2Input, den2Input].forEach(input => {
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') compararFracciones();
+      });
+    });
+
+    // Inicializar visuales
+    actualizarVisuales();
+  </script>
+</body>
+</html>
