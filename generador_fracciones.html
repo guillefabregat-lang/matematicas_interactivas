@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Generador visual de fracciones</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Pequeños estilos complementarios */
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .slice { transition: all 400ms ease; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 p-4 sm:p-8">
+  <div class="max-w-4xl mx-auto">
+    <header class="mb-6">
+      <h1 class="text-2xl sm:text-3xl font-bold">Generador visual de fracciones</h1>
+      <p class="text-sm text-gray-600 mt-1">Elige numerador y denominador, y visualiza la fracción como tarta, barra o cuadrícula.</p>
+    </header>
+
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Panel controles -->
+      <section class="lg:col-span-1 bg-white p-4 rounded-lg shadow-sm">
+        <label class="block mb-2 text-sm font-medium">Numerador</label>
+        <input id="numerador" type="number" min="0" value="1" class="w-full border rounded px-3 py-2 mb-3" />
+
+        <label class="block mb-2 text-sm font-medium">Denominador</label>
+        <input id="denominador" type="number" min="1" value="4" class="w-full border rounded px-3 py-2 mb-3" />
+
+        <label class="block mb-2 text-sm font-medium">Representación</label>
+        <select id="representacion" class="w-full border rounded px-3 py-2 mb-3">
+          <option value="pie">Tarta (círculo)</option>
+          <option value="bar">Barra</option>
+          <option value="grid">Cuadrícula</option>
+        </select>
+
+        <div class="flex gap-2">
+          <button id="mostrarBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded">Mostrar</button>
+          <button id="equivalentesBtn" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded">Equivalentes</button>
+        </div>
+
+        <div class="mt-4 text-sm text-gray-700">
+          <p>Fracción: <span id="fraccionText" class="font-semibold">1/4</span></p>
+          <p class="mt-2">Valor decimal: <span id="decimalText" class="font-semibold">0.25</span></p>
+        </div>
+
+        <hr class="my-4" />
+        <div class="text-xs text-gray-500">Consejos: usa denominadores hasta 12 para que la visualización sea clara. Para cuadrículas, prueba 4, 6, 8, 9 o 12.</div>
+      </section>
+
+      <!-- Panel vista grande -->
+      <section class="lg:col-span-2 bg-white p-4 rounded-lg shadow-sm flex flex-col">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-medium">Vista</h2>
+          <div class="text-sm text-gray-500">Interactúa con la figura: hover para detalles</div>
+        </div>
+
+        <div id="canvasArea" class="flex-1 grid place-items-center min-h-[320px]">
+          <!-- Aquí se inyecta SVG / HTML visual -->
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button id="scaleUp" class="bg-green-600 text-white px-3 py-2 rounded">Aumentar</button>
+          <button id="scaleDown" class="bg-yellow-500 text-white px-3 py-2 rounded">Reducir</button>
+          <button id="resetView" class="bg-red-500 text-white px-3 py-2 rounded">Reset</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="mt-6 text-xs text-gray-500">Hecho para integrarse en páginas educativas. Código abierto — modifícalo libremente.</footer>
+  </div>
+
+<script>
+// --- Utilidades ---
+const $ = id => document.getElementById(id);
+
+function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+// --- Renderizadores ---
+function renderPie(numerador, denominador, size=320){
+  const slices = Math.max(1, Math.min(denominador, 60));
+  const filled = clamp(numerador, 0, denominador);
+  const cx = size/2, cy = size/2, r = Math.min(cx,cy)-4;
+
+  // Si numerador == 0 -> círculo vacío
+  if(filled === 0){
+    return `
+      <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="#f3f4f6" stroke="#9ca3af" stroke-width="2" />
+      </svg>`;
+  }
+
+  // Si numerador >= denominador -> círculo entero
+  if(filled >= denominador){
+    return `
+      <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="#60a5fa" stroke="#1e3a8a" stroke-width="2" />
+      </svg>`;
+  }
+
+  // Construir arco
+  const angle = (filled/denominador) * Math.PI*2;
+  const large = angle > Math.PI ? 1 : 0;
+  const x = cx + r * Math.cos(-Math.PI/2 + angle);
+  const y = cy + r * Math.sin(-Math.PI/2 + angle);
+  const path = `M ${cx} ${cy-r} A ${r} ${r} 0 ${large} 1 ${x} ${y} L ${cx} ${cy} Z`;
+
+  return `
+    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="#f3f4f6" stroke="#9ca3af" stroke-width="2" />
+      <path d="${path}" fill="#60a5fa" class="slice" />
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#0f172a" stroke-opacity="0.05" stroke-width="1" />
+    </svg>`;
+}
+
+function renderBar(numerador, denominador, width=640, height=120){
+  const filled = clamp(numerador, 0, denominador);
+  const percent = denominador === 0 ? 0 : (filled/denominatorSafe(denominador))*100;
+  const innerWidth = Math.max(0, Math.min(100, percent));
+
+  return `
+    <div class="w-full px-4">
+      <div class="w-full bg-gray-200 rounded h-8 overflow-hidden" style="box-shadow: inset 0 1px 0 rgba(255,255,255,0.6)">
+        <div style="width:${innerWidth}%" class="h-8 slice" aria-hidden="true">
+          <div style="height:100%; background:linear-gradient(90deg, #60a5fa, #2563eb);"></div>
+        </div>
+      </div>
+      <div class="mt-2 text-sm text-gray-600">${filled} de ${denominador} =&nbsp;<strong>${(denominador===0)?'–':(filled/denominador).toFixed(3)}</strong></div>
+    </div>`;
+}
+
+function denominatorSafe(d){ return d <= 0 ? 1 : d; }
+
+function renderGrid(numerador, denominador, cols=null){
+  const d = denominatorSafe(denominador);
+  // Elegir columnas razonables
+  const c = cols || (d <= 4 ? d : (d % 2 === 0 ? Math.min(d,8) : Math.min(d,9)) );
+  const rows = Math.ceil(d / c);
+  const totalBoxes = rows * c;
+  const filled = clamp(numerador, 0, d);
+
+  let html = `<div class="grid gap-1" style="grid-template-columns: repeat(${c}, 1fr); width: min(560px, 100%);">
+  `;
+  for(let i=0; i<totalBoxes; i++){
+    const isFilled = i < filled;
+    html += `<div class=\"aspect-square rounded-sm border\" style=\"background:${isFilled? 'linear-gradient(180deg, #60a5fa, #2563eb)' : '#f8fafc'}\"></div>`;
+  }
+  html += `</div>`;
+  html += `<div class=\"mt-3 text-sm text-gray-600\">${filled}/${d} =&nbsp;<strong>${(d===0)?'–':(filled/d).toFixed(3)}</strong></div>`;
+  return html;
+}
+
+// --- Lógica principal ---
+function actualizarVista(){
+  const numerador = parseInt($('numerador').value || 0, 10);
+  const denominador = parseInt($('denominador').value || 1, 10);
+  const rep = $('representacion').value;
+  const canvas = $('canvasArea');
+
+  // Validaciones rápidas
+  if(denominador <= 0){
+    canvas.innerHTML = `<div class="text-red-600">El denominador debe ser mayor que 0.</div>`;
+    return;
+  }
+
+  $('fraccionText').textContent = `${numerador}/${denominador}`;
+  $('decimalText').textContent = (numerador/denominador).toFixed(4);
+
+  if(rep === 'pie'){
+    canvas.innerHTML = renderPie(numerador, denominador, Math.min(420, Math.max(220, Math.floor(window.innerWidth*0.5))));
+  } else if(rep === 'bar'){
+    canvas.innerHTML = renderBar(numerador, denominador);
+  } else {
+    canvas.innerHTML = renderGrid(numerador, denominador);
+  }
+}
+
+// --- Equivalentes (sencillo) ---
+function mostrarEquivalentes(){
+  const n = parseInt($('numerador').value || 0, 10);
+  const d = parseInt($('denominador').value || 1, 10);
+  if(d <= 0) return;
+  const list = [];
+  // Generar hasta 8 equivalentes útiles
+  for(let k=2; k<=9; k++){
+    list.push(`${n*k}/${d*k}`);
+  }
+  // Mostrar en modal simple
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4';
+  modal.innerHTML = `
+    <div class=\"bg-white rounded-lg p-4 max-w-md w-full shadow-lg\">
+      <h3 class=\"font-semibold mb-3\">Fracciones equivalentes a ${n}/${d}</h3>
+      <div class=\"grid grid-cols-2 gap-2 text-sm text-gray-700\">${list.map(x=>`<div class=\\"p-2 border rounded text-center\\">${x}</div>`).join('')}</div>
+      <div class=\"mt-4 text-right\"><button id=\"closeEq\" class=\"px-3 py-1 bg-blue-600 text-white rounded\">Cerrar</button></div>
+    </div>`;
+  document.body.appendChild(modal);
+  $('closeEq').addEventListener('click', ()=> modal.remove());
+}
+
+// --- Manejo botones escala ---
+let scale = 1;
+function applyScale(delta){
+  scale = clamp(scale + delta, 0.5, 2);
+  const region = $('canvasArea');
+  region.style.transform = `scale(${scale})`;
+  region.style.transformOrigin = 'center top';
+}
+
+// --- Eventos ---
+document.addEventListener('DOMContentLoaded', ()=>{
+  actualizarVista();
+  $('mostrarBtn').addEventListener('click', actualizarVista);
+  $('representacion').addEventListener('change', actualizarVista);
+  $('numerador').addEventListener('input', actualizarVista);
+  $('denominador').addEventListener('input', actualizarVista);
+
+  $('equivalentesBtn').addEventListener('click', mostrarEquivalentes);
+  $('scaleUp').addEventListener('click', ()=> applyScale(0.1));
+  $('scaleDown').addEventListener('click', ()=> applyScale(-0.1));
+  $('resetView').addEventListener('click', ()=>{ scale = 1; $('canvasArea').style.transform = ''; });
+
+  // Permitir click en el canvas para alternar representaciones rápidas
+  $('canvasArea').addEventListener('click', ()=>{
+    const sel = $('representacion');
+    if(sel.value === 'pie') sel.value = 'bar';
+    else if(sel.value === 'bar') sel.value = 'grid';
+    else sel.value = 'pie';
+    actualizarVista();
+  });
+
+  // Accesibilidad: teclas rápidas
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === '+') applyScale(0.1);
+    if(e.key === '-') applyScale(-0.1);
+  });
+});
+</script>
+</body>
+</html>
