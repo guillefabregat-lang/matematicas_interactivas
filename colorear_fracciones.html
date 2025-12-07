@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Construye tu Fracción</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes popIn {
+      0% {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.1);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    .animate-pop-in {
+      animation: popIn 0.3s ease-out;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    .animate-shake {
+      animation: shake 0.3s ease-in-out;
+    }
+    .parte {
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 3px solid #fff;
+    }
+    .parte:hover {
+      transform: scale(1.05);
+      filter: brightness(1.1);
+    }
+    .parte.coloreada {
+      background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+    }
+    .parte.no-coloreada {
+      background: #e5e7eb;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6">
+  <div class="max-w-6xl mx-auto">
+    
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-2">
+        🎨 Construye tu Fracción
+      </h1>
+      <p class="text-gray-600 text-lg">Colorea las partes y descubre qué fracción has creado</p>
+      <a href="index.html" class="inline-block mt-4 text-purple-600 hover:text-purple-700 font-semibold">← Volver al índice</a>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-6">
+      
+      <!-- Panel de control -->
+      <div class="lg:col-span-1 space-y-6">
+        
+        <!-- Selector de partes -->
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">⚙️ Configuración</h3>
+          
+          <label class="block text-sm font-semibold text-gray-700 mb-2">
+            Número de partes:
+          </label>
+          <select id="numPartes" class="w-full px-4 py-3 text-lg font-semibold border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none">
+            <option value="4">4 partes</option>
+            <option value="6" selected>6 partes</option>
+            <option value="8">8 partes</option>
+            <option value="9">9 partes</option>
+            <option value="10">10 partes</option>
+            <option value="12">12 partes</option>
+            <option value="16">16 partes</option>
+            <option value="20">20 partes</option>
+          </select>
+
+          <label class="block text-sm font-semibold text-gray-700 mb-2 mt-4">
+            Tipo de figura:
+          </label>
+          <select id="tipoFigura" class="w-full px-4 py-3 text-lg font-semibold border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none">
+            <option value="grid">Cuadrícula</option>
+            <option value="circular">Circular</option>
+            <option value="horizontal">Barras horizontales</option>
+          </select>
+        </div>
+
+        <!-- Contador de fracción -->
+        <div class="bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl shadow-lg p-6 text-white">
+          <h3 class="text-lg font-bold mb-3">📊 Tu Fracción</h3>
+          <div class="bg-white bg-opacity-20 rounded-xl p-6 text-center">
+            <div class="flex items-center justify-center gap-2 mb-2">
+              <span id="numerador" class="text-6xl font-bold animate-pop-in">0</span>
+              <span class="text-5xl font-bold">/</span>
+              <span id="denominador" class="text-6xl font-bold">6</span>
+            </div>
+            <p class="text-sm opacity-90 mt-2">partes coloreadas / total</p>
+          </div>
+          
+          <div id="fraccionSimplificada" class="mt-4 text-center hidden">
+            <p class="text-sm opacity-90 mb-1">Simplificada:</p>
+            <p class="text-3xl font-bold"></p>
+          </div>
+
+          <div id="porcentaje" class="mt-4 bg-white bg-opacity-20 rounded-lg p-3 text-center">
+            <p class="text-sm opacity-90">Porcentaje</p>
+            <p class="text-3xl font-bold">0%</p>
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 space-y-3">
+          <button id="btnLimpiar" class="w-full px-6 py-3 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-colors">
+            🗑️ Limpiar todo
+          </button>
+          <button id="btnColorearTodo" class="w-full px-6 py-3 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition-colors">
+            ✨ Colorear todo
+          </button>
+          <button id="btnAleatorio" class="w-full px-6 py-3 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-colors">
+            🎲 Aleatorio
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Área de trabajo -->
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+          <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+            👆 Haz clic en las partes para colorearlas
+          </h3>
+          
+          <div id="figura" class="flex items-center justify-center min-h-96"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Instrucciones -->
+    <div class="mt-8 bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+      <h3 class="text-lg font-semibold text-blue-900 mb-3">💡 ¿Cómo funciona?</h3>
+      <ul class="text-blue-800 space-y-2 list-disc list-inside">
+        <li>Elige cuántas partes quieres que tenga tu figura</li>
+        <li>Selecciona el tipo de representación (cuadrícula, circular o barras)</li>
+        <li>Haz clic en las partes para colorearlas o descolorearlas</li>
+        <li>La fracción se calcula automáticamente: partes coloreadas / total de partes</li>
+        <li>Usa los botones para limpiar, colorear todo o generar una fracción aleatoria</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <script>
+    const numPartesSelect = document.getElementById('numPartes');
+    const tipoFiguraSelect = document.getElementById('tipoFigura');
+    const figuraDiv = document.getElementById('figura');
+    const numeradorSpan = document.getElementById('numerador');
+    const denominadorSpan = document.getElementById('denominador');
+    const porcentajeDiv = document.getElementById('porcentaje');
+    const fraccionSimplificadaDiv = document.getElementById('fraccionSimplificada');
+    const btnLimpiar = document.getElementById('btnLimpiar');
+    const btnColorearTodo = document.getElementById('btnColorearTodo');
+    const btnAleatorio = document.getElementById('btnAleatorio');
+
+    let partesColoreadas = new Set();
+
+    function mcd(a, b) {
+      return b === 0 ? a : mcd(b, a % b);
+    }
+
+    function simplificar(num, den) {
+      if (num === 0) return [0, den];
+      const divisor = mcd(num, den);
+      return [num / divisor, den / divisor];
+    }
+
+    function actualizarContador() {
+      const total = parseInt(numPartesSelect.value);
+      const coloreadas = partesColoreadas.size;
+      
+      numeradorSpan.textContent = coloreadas;
+      numeradorSpan.classList.add('animate-pop-in');
+      setTimeout(() => numeradorSpan.classList.remove('animate-pop-in'), 300);
+      
+      denominadorSpan.textContent = total;
+
+      const porcentaje = total > 0 ? ((coloreadas / total) * 100).toFixed(1) : 0;
+      porcentajeDiv.querySelector('.text-3xl').textContent = porcentaje + '%';
+
+      // Mostrar fracción simplificada si es diferente
+      const [numSimp, denSimp] = simplificar(coloreadas, total);
+      if (coloreadas > 0 && (numSimp !== coloreadas || denSimp !== total)) {
+        fraccionSimplificadaDiv.classList.remove('hidden');
+        fraccionSimplificadaDiv.querySelector('.text-3xl').textContent = `${numSimp}/${denSimp}`;
+      } else {
+        fraccionSimplificadaDiv.classList.add('hidden');
+      }
+    }
+
+    function toggleParte(index) {
+      if (partesColoreadas.has(index)) {
+        partesColoreadas.delete(index);
+        document.querySelector(`[data-index="${index}"]`).classList.remove('coloreada');
+        document.querySelector(`[data-index="${index}"]`).classList.add('no-coloreada');
+      } else {
+        partesColoreadas.add(index);
+        document.querySelector(`[data-index="${index}"]`).classList.remove('no-coloreada');
+        document.querySelector(`[data-index="${index}"]`).classList.add('coloreada');
+      }
+      actualizarContador();
+    }
+
+    function crearCuadricula(numPartes) {
+      let cols, rows;
+      
+      // Determinar mejor distribución
+      if (numPartes === 4) { cols = 2; rows = 2; }
+      else if (numPartes === 6) { cols = 3; rows = 2; }
+      else if (numPartes === 8) { cols = 4; rows = 2; }
+      else if (numPartes === 9) { cols = 3; rows = 3; }
+      else if (numPartes === 10) { cols = 5; rows = 2; }
+      else if (numPartes === 12) { cols = 4; rows = 3; }
+      else if (numPartes === 16) { cols = 4; rows = 4; }
+      else if (numPartes === 20) { cols = 5; rows = 4; }
+      else { cols = Math.ceil(Math.sqrt(numPartes)); rows = Math.ceil(numPartes / cols); }
+
+      const maxSize = Math.min(500, window.innerWidth - 100);
+      const tamano = Math.floor(maxSize / Math.max(cols, rows));
+
+      let html = `<div style="display: grid; grid-template-columns: repeat(${cols}, ${tamano}px); gap: 2px;">`;
+      
+      for (let i = 0; i < numPartes; i++) {
+        html += `
+          <div class="parte no-coloreada" 
+               data-index="${i}" 
+               style="width: ${tamano}px; height: ${tamano}px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: ${tamano/3}px; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
+            ${i + 1}
+          </div>
+        `;
+      }
+      
+      html += '</div>';
+      figuraDiv.innerHTML = html;
+      
+      document.querySelectorAll('.parte').forEach(parte => {
+        parte.addEventListener('click', () => toggleParte(parseInt(parte.dataset.index)));
+      });
+    }
+
+    function crearCircular(numPartes) {
+      const size = Math.min(400, window.innerWidth - 100);
+      const centerX = size / 2;
+      const centerY = size / 2;
+      const radius = size / 2 - 10;
+
+      let svgHtml = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`;
+      
+      const angleStep = (2 * Math.PI) / numPartes;
+      
+      for (let i = 0; i < numPartes; i++) {
+        const startAngle = i * angleStep - Math.PI / 2;
+        const endAngle = (i + 1) * angleStep - Math.PI / 2;
+        
+        const x1 = centerX + radius * Math.cos(startAngle);
+        const y1 = centerY + radius * Math.sin(startAngle);
+        const x2 = centerX + radius * Math.cos(endAngle);
+        const y2 = centerY + radius * Math.sin(endAngle);
+        
+        const largeArc = angleStep > Math.PI ? 1 : 0;
+        
+        const path = `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+        
+        svgHtml += `
+          <path d="${path}" 
+                class="parte no-coloreada" 
+                data-index="${i}"
+                style="stroke: white; stroke-width: 3; cursor: pointer;"
+                onmouseover="this.style.opacity='0.8'" 
+                onmouseout="this.style.opacity='1'">
+          </path>
+        `;
+      }
+      
+      svgHtml += '</svg>';
+      figuraDiv.innerHTML = svgHtml;
+      
+      document.querySelectorAll('.parte').forEach(parte => {
+        parte.addEventListener('click', () => toggleParte(parseInt(parte.dataset.index)));
+      });
+    }
+
+    function crearBarrasHorizontales(numPartes) {
+      const maxWidth = Math.min(500, window.innerWidth - 100);
+      const altura = 40;
+      const gap = 4;
+
+      let html = `<div style="width: ${maxWidth}px; display: flex; flex-direction: column; gap: ${gap}px;">`;
+      
+      for (let i = 0; i < numPartes; i++) {
+        html += `
+          <div class="parte no-coloreada" 
+               data-index="${i}" 
+               style="width: 100%; height: ${altura}px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 18px; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
+            ${i + 1}
+          </div>
+        `;
+      }
+      
+      html += '</div>';
+      figuraDiv.innerHTML = html;
+      
+      document.querySelectorAll('.parte').forEach(parte => {
+        parte.addEventListener('click', () => toggleParte(parseInt(parte.dataset.index)));
+      });
+    }
+
+    function generarFigura() {
+      partesColoreadas.clear();
+      const numPartes = parseInt(numPartesSelect.value);
+      const tipo = tipoFiguraSelect.value;
+
+      if (tipo === 'grid') {
+        crearCuadricula(numPartes);
+      } else if (tipo === 'circular') {
+        crearCircular(numPartes);
+      } else if (tipo === 'horizontal') {
+        crearBarrasHorizontales(numPartes);
+      }
+
+      actualizarContador();
+    }
+
+    btnLimpiar.addEventListener('click', () => {
+      partesColoreadas.clear();
+      document.querySelectorAll('.parte').forEach(parte => {
+        parte.classList.remove('coloreada');
+        parte.classList.add('no-coloreada');
+      });
+      actualizarContador();
+    });
+
+    btnColorearTodo.addEventListener('click', () => {
+      const numPartes = parseInt(numPartesSelect.value);
+      partesColoreadas.clear();
+      for (let i = 0; i < numPartes; i++) {
+        partesColoreadas.add(i);
+      }
+      document.querySelectorAll('.parte').forEach((parte, index) => {
+        parte.classList.remove('no-coloreada');
+        parte.classList.add('coloreada');
+      });
+      actualizarContador();
+    });
+
+    btnAleatorio.addEventListener('click', () => {
+      const numPartes = parseInt(numPartesSelect.value);
+      partesColoreadas.clear();
+      
+      const numAColorear = Math.floor(Math.random() * (numPartes + 1));
+      const indices = Array.from({length: numPartes}, (_, i) => i);
+      
+      // Shuffle
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+      
+      for (let i = 0; i < numAColorear; i++) {
+        partesColoreadas.add(indices[i]);
+      }
+      
+      document.querySelectorAll('.parte').forEach((parte, index) => {
+        if (partesColoreadas.has(index)) {
+          parte.classList.remove('no-coloreada');
+          parte.classList.add('coloreada');
+        } else {
+          parte.classList.remove('coloreada');
+          parte.classList.add('no-coloreada');
+        }
+      });
+      
+      actualizarContador();
+    });
+
+    numPartesSelect.addEventListener('change', generarFigura);
+    tipoFiguraSelect.addEventListener('change', generarFigura);
+
+    // Inicializar
+    generarFigura();
+  </script>
+</body>
+</html>
