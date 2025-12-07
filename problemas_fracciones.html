@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Problemas de Fracciones</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-slide-in {
+      animation: slideIn 0.5s ease-out;
+    }
+    @keyframes celebrate {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      25% { transform: scale(1.1) rotate(-5deg); }
+      75% { transform: scale(1.1) rotate(5deg); }
+    }
+    .animate-celebrate {
+      animation: celebrate 0.5s ease-in-out;
+    }
+    .parte {
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 3px solid #fff;
+    }
+    .parte:hover {
+      transform: scale(1.05);
+      filter: brightness(1.1);
+    }
+    .parte.coloreada {
+      background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+    }
+    .parte.complementaria {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    }
+    .parte.no-coloreada {
+      background: #e5e7eb;
+    }
+    .opcion-btn {
+      transition: all 0.3s ease;
+    }
+    .opcion-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
+    .opcion-btn.correcta {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+    }
+    .opcion-btn.incorrecta {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6">
+  <div class="max-w-5xl mx-auto">
+    
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent mb-2">
+        🎯 Problemas de Fracciones
+      </h1>
+      <p class="text-gray-600 text-lg">Practica con problemas interactivos y visuales</p>
+      <a href="index.html" class="inline-block mt-4 text-blue-600 hover:text-blue-700 font-semibold">← Volver al índice</a>
+    </div>
+
+    <!-- Puntuación -->
+    <div class="grid grid-cols-3 gap-4 mb-8">
+      <div class="bg-white rounded-xl shadow-lg p-4 text-center">
+        <p class="text-sm text-gray-600 mb-1">Correctas</p>
+        <p id="correctas" class="text-3xl font-bold text-green-600">0</p>
+      </div>
+      <div class="bg-white rounded-xl shadow-lg p-4 text-center">
+        <p class="text-sm text-gray-600 mb-1">Incorrectas</p>
+        <p id="incorrectas" class="text-3xl font-bold text-red-600">0</p>
+      </div>
+      <div class="bg-white rounded-xl shadow-lg p-4 text-center">
+        <p class="text-sm text-gray-600 mb-1">Total</p>
+        <p id="total" class="text-3xl font-bold text-blue-600">0</p>
+      </div>
+    </div>
+
+    <!-- Área del problema -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 mb-6 animate-slide-in" id="areaPoblema">
+      
+      <!-- Enunciado -->
+      <div class="mb-8">
+        <div class="bg-gradient-to-r from-blue-100 to-purple-100 rounded-xl p-6">
+          <p id="enunciado" class="text-xl md:text-2xl font-semibold text-gray-800 text-center"></p>
+        </div>
+      </div>
+
+      <!-- Visualización -->
+      <div id="visualizacion" class="mb-8 flex justify-center"></div>
+
+      <!-- Área de respuesta -->
+      <div id="areaRespuesta" class="mb-6"></div>
+
+      <!-- Información de fracciones -->
+      <div id="infoFracciones" class="hidden">
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+          <div class="bg-gradient-to-br from-pink-50 to-purple-50 rounded-xl p-4 border-2 border-pink-200">
+            <p class="text-sm text-gray-600 mb-2 text-center">Fracción coloreada</p>
+            <p id="fraccionPrincipal" class="text-4xl font-bold text-center text-pink-600"></p>
+            <p id="fraccionPrincipalSimp" class="text-xl text-center text-gray-600 mt-1"></p>
+          </div>
+          <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border-2 border-amber-200">
+            <p class="text-sm text-gray-600 mb-2 text-center">Fracción complementaria</p>
+            <p id="fraccionComplementaria" class="text-4xl font-bold text-center text-amber-600"></p>
+            <p id="fraccionComplementariaSimp" class="text-xl text-center text-gray-600 mt-1"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Retroalimentación -->
+      <div id="retroalimentacion" class="hidden mb-6"></div>
+
+      <!-- Botón nuevo problema -->
+      <div class="text-center">
+        <button id="btnNuevo" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xl font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all">
+          🎲 Nuevo Problema
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Instrucciones -->
+    <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+      <h3 class="text-lg font-semibold text-blue-900 mb-3">💡 Tipos de Problemas</h3>
+      <ul class="text-blue-800 space-y-2 list-disc list-inside">
+        <li><strong>Identificar fracción:</strong> Observa la figura coloreada y escribe qué fracción representa</li>
+        <li><strong>Representar fracción:</strong> Colorea las partes necesarias para representar la fracción indicada</li>
+        <li><strong>Fracciones equivalentes:</strong> Selecciona la fracción equivalente entre varias opciones</li>
+        <li><strong>Fracción complementaria:</strong> Completa la figura hasta llegar a 1 entero</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <script>
+    let correctas = 0;
+    let incorrectas = 0;
+    let problemaActual = null;
+    let respondido = false;
+
+    const tiposProblemas = ['identificar', 'representar', 'equivalentes', 'complementaria'];
+
+    function mcd(a, b) {
+      return b === 0 ? a : mcd(b, a % b);
+    }
+
+    function simplificar(num, den) {
+      if (num === 0) return [0, den];
+      const divisor = mcd(num, den);
+      return [num / divisor, den / divisor];
+    }
+
+    function generarFraccion(maxDen = 12) {
+      const denominador = Math.floor(Math.random() * (maxDen - 2)) + 3; // 3 a maxDen
+      const numerador = Math.floor(Math.random() * denominador) + 1; // 1 a denominador-1
+      return [numerador, denominador];
+    }
+
+    function fraccionesEquivalentes(num, den, cantidad = 3) {
+      const equivalentes = [];
+      for (let i = 2; i <= cantidad + 1; i++) {
+        equivalentes.push([num * i, den * i]);
+      }
+      return equivalentes;
+    }
+
+    function dibujarFigura(numerador, denominador, permiteClick = false, coloreadas = []) {
+      const maxSize = Math.min(500, window.innerWidth - 100);
+      
+      let cols, rows;
+      if (denominador <= 4) { cols = denominador; rows = 1; }
+      else if (denominador === 6) { cols = 3; rows = 2; }
+      else if (denominador === 8) { cols = 4; rows = 2; }
+      else if (denominador === 9) { cols = 3; rows = 3; }
+      else if (denominador === 10) { cols = 5; rows = 2; }
+      else if (denominador === 12) { cols = 4; rows = 3; }
+      else { cols = Math.ceil(Math.sqrt(denominador)); rows = Math.ceil(denominador / cols); }
+
+      const tamano = Math.floor(Math.min(maxSize / cols, 400 / rows));
+
+      let html = `<div style="display: grid; grid-template-columns: repeat(${cols}, ${tamano}px); gap: 2px;">`;
+      
+      for (let i = 0; i < denominador; i++) {
+        const esColoreada = coloreadas.includes(i);
+        const claseColor = esColoreada ? 'coloreada' : 'no-coloreada';
+        const cursor = permiteClick ? 'cursor-pointer' : 'cursor-default';
+        
+        html += `
+          <div class="parte ${claseColor}" 
+               data-index="${i}" 
+               style="width: ${tamano}px; height: ${tamano}px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: ${tamano/3}px; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); ${cursor}">
+            ${i + 1}
+          </div>
+        `;
+      }
+      
+      html += '</div>';
+      return html;
+    }
+
+    function mostrarFraccionesInfo(num, den, numComp, denComp) {
+      const [numSimp, denSimp] = simplificar(num, den);
+      const [numCompSimp, denCompSimp] = simplificar(numComp, denComp);
+
+      document.getElementById('fraccionPrincipal').textContent = `${num}/${den}`;
+      document.getElementById('fraccionPrincipalSimp').textContent = 
+        (numSimp !== num || denSimp !== den) ? `= ${numSimp}/${denSimp}` : '';
+
+      document.getElementById('fraccionComplementaria').textContent = `${numComp}/${denComp}`;
+      document.getElementById('fraccionComplementariaSimp').textContent = 
+        (numCompSimp !== numComp || denCompSimp !== denComp) ? `= ${numCompSimp}/${denCompSimp}` : '';
+
+      document.getElementById('infoFracciones').classList.remove('hidden');
+    }
+
+    function problemaIdentificar() {
+      const [num, den] = generarFraccion(10);
+      const coloreadas = [];
+      for (let i = 0; i < num; i++) coloreadas.push(i);
+
+      problemaActual = { tipo: 'identificar', num, den, respuesta: `${num}/${den}` };
+
+      document.getElementById('enunciado').textContent = 
+        '¿Qué fracción de la figura está coloreada?';
+      
+      document.getElementById('visualizacion').innerHTML = dibujarFigura(num, den, false, coloreadas);
+
+      // Inputs para respuesta
+      document.getElementById('areaRespuesta').innerHTML = `
+        <div class="flex items-center justify-center gap-4">
+          <div class="text-center">
+            <input type="number" id="respNum" min="0" max="${den}" 
+                   class="w-24 h-24 text-4xl font-bold text-center border-4 border-blue-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                   placeholder="?">
+            <p class="text-sm text-gray-600 mt-2">Numerador</p>
+          </div>
+          <div class="text-6xl font-bold text-blue-600">/</div>
+          <div class="text-center">
+            <input type="number" id="respDen" min="1" max="${den}" 
+                   class="w-24 h-24 text-4xl font-bold text-center border-4 border-blue-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                   placeholder="?">
+            <p class="text-sm text-gray-600 mt-2">Denominador</p>
+          </div>
+          <button id="btnComprobar" class="px-6 py-4 bg-green-600 text-white text-xl font-bold rounded-lg hover:bg-green-700 transition-colors">
+            ✓ Comprobar
+          </button>
+        </div>
+      `;
+
+      document.getElementById('btnComprobar').addEventListener('click', comprobarIdentificar);
+    }
+
+    function comprobarIdentificar() {
+      if (respondido) return;
+      
+      const respNum = parseInt(document.getElementById('respNum').value);
+      const respDen = parseInt(document.getElementById('respDen').value);
+      
+      if (isNaN(respNum) || isNaN(respDen)) {
+        alert('⚠️ Por favor, completa ambos campos');
+        return;
+      }
+
+      respondido = true;
+
+      const [numSimp, denSimp] = simplificar(respNum, respDen);
+      const [numCorrectoSimp, denCorrectoSimp] = simplificar(problemaActual.num, problemaActual.den);
+
+      const esCorrecto = numSimp === numCorrectoSimp && denSimp === denCorrectoSimp;
+
+      if (esCorrecto) {
+        correctas++;
+        mostrarRetroalimentacion(true, `¡Correcto! La fracción es ${problemaActual.num}/${problemaActual.den}`);
+      } else {
+        incorrectas++;
+        mostrarRetroalimentacion(false, `Incorrecto. La respuesta correcta es ${problemaActual.num}/${problemaActual.den}`);
+      }
+
+      const numComp = problemaActual.den - problemaActual.num;
+      mostrarFraccionesInfo(problemaActual.num, problemaActual.den, numComp, problemaActual.den);
+      actualizarPuntuacion();
+    }
+
+    function problemaRepresentar() {
+      const [num, den] = generarFraccion(10);
+      problemaActual = { tipo: 'representar', num, den, coloreadas: new Set() };
+
+      document.getElementById('enunciado').textContent = 
+        `Colorea las partes para representar la fracción ${num}/${den}`;
+      
+      document.getElementById('visualizacion').innerHTML = dibujarFigura(num, den, true, []);
+
+      document.getElementById('areaRespuesta').innerHTML = `
+        <div class="text-center">
+          <p class="text-xl text-gray-700 mb-4">Haz clic en <strong>${num}</strong> partes para colorearlas</p>
+          <button id="btnComprobar" class="px-6 py-4 bg-green-600 text-white text-xl font-bold rounded-lg hover:bg-green-700 transition-colors">
+            ✓ Comprobar
+          </button>
+        </div>
+      `;
+
+      document.querySelectorAll('.parte').forEach(parte => {
+        parte.addEventListener('click', () => {
+          if (respondido) return;
+          const index = parseInt(parte.dataset.index);
+          if (problemaActual.coloreadas.has(index)) {
+            problemaActual.coloreadas.delete(index);
+            parte.classList.remove('coloreada');
+            parte.classList.add('no-coloreada');
+          } else {
+            problemaActual.coloreadas.add(index);
+            parte.classList.remove('no-coloreada');
+            parte.classList.add('coloreada');
+          }
+        });
+      });
+
+      document.getElementById('btnComprobar').addEventListener('click', comprobarRepresentar);
+    }
+
+    function comprobarRepresentar() {
+      if (respondido) return;
+      respondido = true;
+
+      const esCorrecto = problemaActual.coloreadas.size === problemaActual.num;
+
+      if (esCorrecto) {
+        correctas++;
+        mostrarRetroalimentacion(true, `¡Correcto! Has coloreado ${problemaActual.num}/${problemaActual.den} de la figura`);
+      } else {
+        incorrectas++;
+        mostrarRetroalimentacion(false, `Incorrecto. Debías colorear ${problemaActual.num} partes, pero coloreaste ${problemaActual.coloreadas.size}`);
+      }
+
+      const numComp = problemaActual.den - problemaActual.num;
+      mostrarFraccionesInfo(problemaActual.num, problemaActual.den, numComp, problemaActual.den);
+      actualizarPuntuacion();
+    }
+
+    function problemaEquivalentes() {
+      const [num, den] = generarFraccion(6);
+      const equivalente = fraccionesEquivalentes(num, den, 1)[0];
+      
+      const opciones = [
+        equivalente,
+        [num + 1, den],
+        [num, den + 1],
+        [num + 1, den + 1]
+      ];
+
+      // Shuffle
+      for (let i = opciones.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [opciones[i], opciones[j]] = [opciones[j], opciones[i]];
+      }
+
+      problemaActual = { tipo: 'equivalentes', num, den, correcta: `${equivalente[0]}/${equivalente[1]}` };
+
+      const coloreadas = [];
+      for (let i = 0; i < num; i++) coloreadas.push(i);
+
+      document.getElementById('enunciado').textContent = 
+        `¿Cuál de estas fracciones es equivalente a ${num}/${den}?`;
+      
+      document.getElementById('visualizacion').innerHTML = dibujarFigura(num, den, false, coloreadas);
+
+      let htmlOpciones = '<div class="grid grid-cols-2 gap-4">';
+      opciones.forEach(([n, d]) => {
+        htmlOpciones += `
+          <button class="opcion-btn px-6 py-4 bg-white border-4 border-blue-300 rounded-xl text-3xl font-bold text-blue-600 hover:border-blue-500"
+                  data-respuesta="${n}/${d}">
+            ${n}/${d}
+          </button>
+        `;
+      });
+      htmlOpciones += '</div>';
+
+      document.getElementById('areaRespuesta').innerHTML = htmlOpciones;
+
+      document.querySelectorAll('.opcion-btn').forEach(btn => {
+        btn.addEventListener('click', () => comprobarEquivalente(btn.dataset.respuesta));
+      });
+    }
+
+    function comprobarEquivalente(respuesta) {
+      if (respondido) return;
+      respondido = true;
+
+      const esCorrecto = respuesta === problemaActual.correcta;
+
+      document.querySelectorAll('.opcion-btn').forEach(btn => {
+        btn.disabled = true;
+        if (btn.dataset.respuesta === problemaActual.correcta) {
+          btn.classList.add('correcta');
+        } else if (btn.dataset.respuesta === respuesta && !esCorrecto) {
+          btn.classList.add('incorrecta');
+        }
+      });
+
+      if (esCorrecto) {
+        correctas++;
+        mostrarRetroalimentacion(true, `¡Correcto! ${respuesta} es equivalente a ${problemaActual.num}/${problemaActual.den}`);
+      } else {
+        incorrectas++;
+        mostrarRetroalimentacion(false, `Incorrecto. La respuesta correcta es ${problemaActual.correcta}`);
+      }
+
+      const numComp = problemaActual.den - problemaActual.num;
+      mostrarFraccionesInfo(problemaActual.num, problemaActual.den, numComp, problemaActual.den);
+      actualizarPuntuacion();
+    }
+
+    function problemaComplementaria() {
+      const [num, den] = generarFraccion(10);
+      const numComp = den - num;
+      
+      const coloreadas = [];
+      for (let i = 0; i < num; i++) coloreadas.push(i);
+
+      problemaActual = { tipo: 'complementaria', num, den, numComp, respuesta: `${numComp}/${den}` };
+
+      document.getElementById('enunciado').textContent = 
+        `Si tenemos ${num}/${den} coloreado, ¿qué fracción falta para completar el entero?`;
+      
+      document.getElementById('visualizacion').innerHTML = dibujarFigura(num, den, false, coloreadas);
+
+      document.getElementById('areaRespuesta').innerHTML = `
+        <div class="flex items-center justify-center gap-4">
+          <div class="text-center">
+            <input type="number" id="respNum" min="0" max="${den}" 
+                   class="w-24 h-24 text-4xl font-bold text-center border-4 border-amber-300 rounded-lg focus:border-amber-500 focus:outline-none"
+                   placeholder="?">
+            <p class="text-sm text-gray-600 mt-2">Numerador</p>
+          </div>
+          <div class="text-6xl font-bold text-amber-600">/</div>
+          <div class="text-center">
+            <input type="number" id="respDen" value="${den}" readonly
+                   class="w-24 h-24 text-4xl font-bold text-center border-4 border-gray-300 rounded-lg bg-gray-100">
+            <p class="text-sm text-gray-600 mt-2">Denominador</p>
+          </div>
+          <button id="btnComprobar" class="px-6 py-4 bg-green-600 text-white text-xl font-bold rounded-lg hover:bg-green-700 transition-colors">
+            ✓ Comprobar
+          </button>
+        </div>
+      `;
+
+      document.getElementById('btnComprobar').addEventListener('click', comprobarComplementaria);
+    }
+
+    function comprobarComplementaria() {
+      if (respondido) return;
+      
+      const respNum = parseInt(document.getElementById('respNum').value);
+      
+      if (isNaN(respNum)) {
+        alert('⚠️ Por favor, completa el campo');
+        return;
+      }
+
+      respondido = true;
+
+      const esCorrecto = respNum === problemaActual.numComp;
+
+      if (esCorrecto) {
+        correctas++;
+        mostrarRetroalimentacion(true, `¡Correcto! Falta ${problemaActual.numComp}/${problemaActual.den} para completar el entero`);
+        
+        // Colorear las partes complementarias
+        const partes = document.querySelectorAll('.parte');
+        for (let i = problemaActual.num; i < problemaActual.den; i++) {
+          partes[i].classList.remove('no-coloreada');
+          partes[i].classList.add('complementaria');
+        }
+      } else {
+        incorrectas++;
+        mostrarRetroalimentacion(false, `Incorrecto. La respuesta correcta es ${problemaActual.numComp}/${problemaActual.den}`);
+      }
+
+      mostrarFraccionesInfo(problemaActual.num, problemaActual.den, problemaActual.numComp, problemaActual.den);
+      actualizarPuntuacion();
+    }
+
+    function mostrarRetroalimentacion(correcto, mensaje) {
+      const retroDiv = document.getElementById('retroalimentacion');
+      retroDiv.classList.remove('hidden');
+      
+      const color = correcto ? 'green' : 'red';
+      const icono = correcto ? '✓' : '✗';
+      
+      retroDiv.innerHTML = `
+        <div class="bg-${color}-100 border-4 border-${color}-300 rounded-xl p-6 text-center animate-slide-in">
+          <p class="text-4xl mb-2 animate-celebrate">${icono}</p>
+          <p class="text-2xl font-bold text-${color}-800">${mensaje}</p>
+        </div>
+      `;
+    }
+
+    function actualizarPuntuacion() {
+      document.getElementById('correctas').textContent = correctas;
+      document.getElementById('incorrectas').textContent = incorrectas;
+      document.getElementById('total').textContent = correctas + incorrectas;
+    }
+
+    function nuevoProblema() {
+      respondido = false;
+      document.getElementById('retroalimentacion').classList.add('hidden');
+      document.getElementById('infoFracciones').classList.add('hidden');
+      document.getElementById('retroalimentacion').innerHTML = '';
+      
+      const tipoAleatorio = tiposProblemas[Math.floor(Math.random() * tiposProblemas.length)];
+      
+      if (tipoAleatorio === 'identificar') problemaIdentificar();
+      else if (tipoAleatorio === 'representar') problemaRepresentar();
+      else if (tipoAleatorio === 'equivalentes') problemaEquivalentes();
+      else if (tipoAleatorio === 'complementaria') problemaComplementaria();
+    }
+
+    document.getElementById('btnNuevo').addEventListener('click', nuevoProblema);
+
+    // Inicializar con el primer problema
+    nuevoProblema();
+  </script>
+</body>
+</html>
